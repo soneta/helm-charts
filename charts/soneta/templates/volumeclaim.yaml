@@ -1,0 +1,13 @@
+{{- if .Values.resources.pvc.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "soneta.fullname.server" . }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile
+  resources:
+    requests:
+      storage: {{ .Values.resources.pvc.requests }}
+{{- end }}

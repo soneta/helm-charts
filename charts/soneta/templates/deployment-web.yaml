@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "soneta.fullname.web" . }}
+  labels:
+{{ include "soneta.labels.web" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+{{ include "soneta.labels.web" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ include "soneta.labels.web" . | indent 8 }}
+    spec:
+      containers:
+        - name: "{{ .Chart.Name }}-web-{{ .Values.image.product}}"
+          image: "{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ .Values.image.webTagPostfix | default "" }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            {{- if .Values.envs.web }}
+            {{- toYaml .Values.envs.web | nindent 12 }}
+            {{- end }}
+            - name: SONETA_SERVER_ENDPOINTS
+              value: $({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources.web | nindent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

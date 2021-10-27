@@ -1,0 +1,24 @@
+apiVersion: v1
+version: 0.2.0
+# appVersion: "1.0"
+kubeVersion: ">=1.16.0"
+name: soneta
+description: Soneta products Helm chart for Kubernetes
+keywords: 
+    - enova
+    - enova365
+    - triva
+    - soneta
+home: https://enova.pl
+sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+maintainers:
+    - name: bartcho
+#       email:
+#       url:
+# icon: 
+annotations:
+    artifacthub.io/containsSecurityUpdates: false
+    artifacthub.io/changes: |
+        - Added webapi service 
