@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "title": "Values",
+    "properties": {
+        "image": {
+            "type": "object",
+            "description": "Container image",
+            "properties": {
+                "repository": {
+                    "type" :"string",
+                    "default": "",
+                    "description": "Repository url, if empty then dockerhub"
+                },
+                "product": {
+                    "type" :"string",
+                    "enum": ["standard", "premium"]
+                },
+                "tag":{
+                    "type": "string"
+                },
+                "scheduler": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "webapi": {
+                    "type": "boolean",
+                    "default": false
+                }
+            },
+            "required": [
+                "repository",
+                "product",
+                "tag"
+            ]
+        }
+    }
+}
