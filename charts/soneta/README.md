@@ -32,7 +32,7 @@ Poniżej parametry do wykorzystania podczas instalacji z przykładowymi wartośc
 --set image.webTagPostfix="-core" - włączenie serwera web w wersji .netcore
 ```
 ### Parametryzacja plikiem *values.yaml*
-Analogicznie te same parametry moga być umieszczone w pliku values. Plik jest przekazywany do helm install lub helm upgrade z flagą _–f_ lub _-values_:
+Analogicznie te same parametry moga być umieszczone w pliku values. Plik jest przekazywany do *helm install* lub *helm upgrade* z flagą _–f_ lub _-values_:
 ```
 envs:
   server:
