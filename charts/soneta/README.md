@@ -8,9 +8,6 @@ Instalacja aplikacji: „enova” to jej nazwa, „soneta/soneta” to odpowiedn
 ```console
 helm install enova soneta/soneta
 ```
-## Parametryzacja
-
-Tu opis watość domyślnych oraz jak parametryzować podczas instalacji
 
 ## Zawartość paczki
 
@@ -30,7 +27,7 @@ helm install enova soneta/soneta
 ```
 •	Jest przekazywany do helm install lub helm upgrade z flagą –f lub -values : 
 ```console
-helm install enova soneta/soneta –values .\values)
+helm install enova soneta/soneta –values .\values
 ```
 Rozwiązanie to pozwala na użycie osobnego pliku values np. do parametryzowania poszczególnych instancji aplikacji. W takim przypadku dane 
 w pierwszej kolejności pobierane są ze wskazanego pliku values, pozostałe dane (o ile takie są) pobierane są z głównego katalogu Charta. Można więc w głównym pliku trzymać dane niezmienne, a dodatkowo parametryzować poszczególne instancje dodatkowym plikiem, który przekazywany jest do helm install lub helm upgrade. \
