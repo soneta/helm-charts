@@ -1,0 +1,11 @@
+{{- if .Values.listaBazDanych -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "soneta.fullname.server" . }}
+  labels:
+{{ include "soneta.labels.server" . | indent 4 }}
+data:
+  lista-baz-danych: |-
+    {{ .Values.listaBazDanych | nindent 4 | trim }}
+{{- end }}

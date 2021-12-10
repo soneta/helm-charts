@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "soneta.fullname.web" . }}-test-connection"
+  labels:
+{{ include "soneta.labels.web" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['{{ include "soneta.fullname.web" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

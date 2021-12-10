@@ -1,0 +1,108 @@
+{{- if .Values.image.scheduler -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "soneta.fullname.scheduler" . }}
+  labels:
+{{ include "soneta.labels.scheduler" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+{{ include "soneta.labels.scheduler" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ include "soneta.labels.scheduler" . | indent 8 }}
+    spec:
+      containers:
+        - name: "{{ .Chart.Name }}-server-{{ .Values.image.product}}"
+          image: "{{ .Values.image.repository }}soneta/server.{{ .Values.image.product}}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          {{- if eq .Values.image.product "standard"  }}
+          command: [ "SonetaServer.exe" ]
+          {{- else }}
+          command: [ "SonetaServerPremium.exe" ]
+          {{- end }}
+          args: [ "/console", "/dbconfig=c:\\config\\lista-baz-danych.xml"]
+          ports:
+            - name: {{ .Values.service.server.port0Name }}
+              containerPort: {{ .Values.service.server.port0 }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources.scheduler | nindent 12 }}
+          env:
+            - name: SCHEDULER
+              value: 'True'
+            {{- if .Values.envs.server }}
+            {{- toYaml .Values.envs.server | nindent 12 }}
+            {{- end }}
+          {{- if not .Values.listaBazDanych }}
+            - name: SERVER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "soneta.fullname.server" . }}
+                  key: server
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "soneta.fullname.server" . }}
+                  key: db-name
+            - name: USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "soneta.fullname.server" . }}
+                  key: user
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "soneta.fullname.server" . }}
+                  key: password
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.resources.pvc.enabled }}
+            - name: pvc-volume
+              mountPath: {{ .Values.resources.pvc.mountPath | quote }}
+            {{- end }}
+            {{- if .Values.resources.afs.enabled }}
+            - name: afs-volume
+              mountPath: {{ .Values.resources.afs.mountPath | quote }}
+            {{- end }}
+            {{- if .Values.listaBazDanych }}
+            - name: lista-baz-danych-volume
+              mountPath: "C:\\config"
+            {{- end }}
+      volumes:
+        {{- if .Values.resources.pvc.enabled }}
+        - name: pvc-volume
+          persistentVolumeClaim:
+            claimName: {{ include "soneta.fullname.server" . }}
+        {{- end }}
+        {{- if .Values.resources.afs.enabled }}
+        - name: afs-volume
+          azureFile:
+            secretName: {{ include "soneta.fullname.server" . }}
+            shareName: {{ required "Azure storage share name is required" .Values.resources.afs.shareName | quote }}
+            readOnly: false
+        {{- end }}
+        {{- if .Values.listaBazDanych }}
+        - name: lista-baz-danych-volume
+          configMap:
+            name: {{ include "soneta.fullname.server" . }}
+            items:
+            - key: lista-baz-danych
+              path: "lista-baz-danych.xml"
+        {{- end }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}
