@@ -1,0 +1,17 @@
+{{- if .Values.image.webapi -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "soneta.fullname.webapi" . }}
+  labels:
+{{ include "soneta.labels.webapi" . | indent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+{{ include "soneta.labels.webapi" . | indent 4 }}
+{{- end }}
