@@ -31,10 +31,11 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.resources.webapi | nindent 12 }}
-    {{- with .Values.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+        kubernetes.io/os: windows
+      {{- with .Values.nodeSelector }}
+          {{- toYaml . | nindent 8 }}
+      {{- end }}
     {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}

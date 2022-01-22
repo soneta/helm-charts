@@ -95,3 +95,7 @@ app.kubernetes.io/name: {{ include "soneta.name.webapi" . }}
 app.kubernetes.io/name: {{ include "soneta.name.scheduler" . }}
 {{ include "soneta.labels" . }}
 {{- end -}}
+
+{{- define "soneta.nodeselector.os" -}}
+{{ if eq (.Values.image.webTagPostfix | default "") "-alpine" }}linux{{ else }}windows{{ end }}
+{{- end -}}

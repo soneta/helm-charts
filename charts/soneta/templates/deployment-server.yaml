@@ -90,10 +90,11 @@ spec:
             - key: lista-baz-danych
               path: "lista-baz-danych.xml"
         {{- end }}
-    {{- with .Values.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+        kubernetes.io/os: windows
+      {{- with .Values.nodeSelector }}
+          {{- toYaml . | nindent 8 }}
+      {{- end }}
     {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
