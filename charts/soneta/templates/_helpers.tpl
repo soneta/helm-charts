@@ -18,6 +18,10 @@ Expand the name of the chart.
 {{- printf "%s-%s" (include "soneta.name" . ) "webapi" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "soneta.name.webwcf" -}}
+{{- printf "%s-%s" (include "soneta.name" . ) "webwcf" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "soneta.name.scheduler" -}}
 {{- printf "%s-%s" (include "soneta.name" . ) "scheduler" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -46,6 +50,10 @@ If release name contains chart name it will be used as a full name.
 
 {{- define "soneta.fullname.webapi" -}}
 {{- printf "%s-%s" (include "soneta.fullname" . ) "webapi" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "soneta.fullname.webwcf" -}}
+{{- printf "%s-%s" (include "soneta.fullname" . ) "webwcf" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "soneta.fullname.server" -}}
@@ -88,6 +96,11 @@ app.kubernetes.io/name: {{ include "soneta.name.web" . }}
 
 {{- define "soneta.labels.webapi" -}}
 app.kubernetes.io/name: {{ include "soneta.name.webapi" . }}
+{{ include "soneta.labels" . }}
+{{- end -}}
+
+{{- define "soneta.labels.webwcf" -}}
+app.kubernetes.io/name: {{ include "soneta.name.webwcf" . }}
 {{ include "soneta.labels" . }}
 {{- end -}}
 

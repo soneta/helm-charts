@@ -10,6 +10,7 @@ image:
   repository: ""
   scheduler: false
   webapi: false
+  webwcf: false
 
 imagePullSecrets: []
 nameOverride: ""

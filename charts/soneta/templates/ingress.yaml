@@ -32,4 +32,10 @@ spec:
               serviceName: {{ include "soneta.fullname.webapi" . }}
               servicePort: http
           {{- end -}}
+          {{- if .Values.image.webwcf }}
+          - path: /Business/
+            backend:
+              serviceName: {{ include "soneta.fullname.webwcf" . }}
+              servicePort: http
+          {{- end -}}
 {{- end }}
