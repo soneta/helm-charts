@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: "{{ .Chart.Name }}-webapi"
-          image: "{{ .Values.image.repository }}soneta/web.api:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}soneta/web.api:{{ .Values.image.tag }}{{ .Values.image.webTagPostfix | default "-nanoserver" }}"
           imagePullPolicy: IfNotPresent
           env:
             {{- if .Values.envs.webapi }}
@@ -32,7 +32,7 @@ spec:
           resources:
             {{- toYaml .Values.resources.webapi | nindent 12 }}
       nodeSelector:
-        kubernetes.io/os: windows
+        kubernetes.io/os: {{ include "soneta.nodeselector.os" . }}
       {{- with .Values.nodeSelector }}
           {{- toYaml . | nindent 8 }}
       {{- end }}
