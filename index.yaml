@@ -2,6 +2,30 @@ apiVersion: v1
 entries:
   soneta:
   - annotations:
+      artifacthub.io/changes: "- Added webwcf service \n- Hanling alpine base images for web, web.api and web.wcf "
+      artifacthub.io/containsSecurityUpdates: "false"
+    apiVersion: v1
+    appVersion: 2204.0.0
+    created: "2022-04-28T12:29:17.613614823Z"
+    description: Soneta products Helm chart for Kubernetes
+    digest: 4aa252456691b3febc1ca493d7733fa3dc952333e213000b9646d6cfbfc24ef4
+    home: https://enova.pl
+    keywords:
+    - enova
+    - enova365
+    - triva
+    - soneta
+    kubeVersion: '>=1.16.0'
+    maintainers:
+    - name: bartcho
+    name: soneta
+    sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+    urls:
+    - https://github.com/soneta/helm-charts/releases/download/soneta-0.3.0/soneta-0.3.0.tgz
+    version: 0.3.0
+  - annotations:
       artifacthub.io/changes: '- Added webapi service '
       artifacthub.io/containsSecurityUpdates: "false"
     apiVersion: v1
