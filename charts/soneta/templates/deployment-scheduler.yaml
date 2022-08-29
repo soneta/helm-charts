@@ -17,18 +17,10 @@ spec:
     spec:
       containers:
         - name: "{{ .Chart.Name }}-server-{{ .Values.image.product}}"
-          image: "{{ .Values.image.repository }}soneta/server.{{ .Values.image.product}}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}soneta/server.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.server.tagPostfix" . }}"
           imagePullPolicy: IfNotPresent
-          {{- if eq .Values.image.product "standard"  }}
-          command: [ "SonetaServer.exe" ]
-          {{- else }}
-          command: [ "SonetaServerPremium.exe" ]
-          {{- end }}
-          args: [ "/console", "/dbconfig=c:\\config\\lista-baz-danych.xml"]
-          ports:
-            - name: {{ .Values.service.server.port0Name }}
-              containerPort: {{ .Values.service.server.port0 }}
-              protocol: TCP
+          command: {{ include "soneta.scheduler.command" . }}
+          args: {{ include "soneta.scheduler.args" . }}
           resources:
             {{- toYaml .Values.resources.scheduler | nindent 12 }}
           env:
@@ -37,28 +29,6 @@ spec:
             {{- if .Values.envs.server }}
             {{- toYaml .Values.envs.server | nindent 12 }}
             {{- end }}
-          {{- if not .Values.listaBazDanych }}
-            - name: SERVER_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "soneta.fullname.server" . }}
-                  key: server
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "soneta.fullname.server" . }}
-                  key: db-name
-            - name: USER_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "soneta.fullname.server" . }}
-                  key: user
-            - name: PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "soneta.fullname.server" . }}
-                  key: password
-          {{- end }}
           volumeMounts:
             {{- if .Values.resources.pvc.enabled }}
             - name: pvc-volume
@@ -94,7 +64,7 @@ spec:
               path: "lista-baz-danych.xml"
         {{- end }}
       nodeSelector:
-        kubernetes.io/os: windows
+        kubernetes.io/os: {{ include "soneta.server.nodeselector.os" . }}
       {{- with .Values.nodeSelector }}
           {{- toYaml . | nindent 8 }}
       {{- end }}

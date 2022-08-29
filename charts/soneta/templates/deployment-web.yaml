@@ -16,14 +16,14 @@ spec:
     spec:
       containers:
         - name: "{{ .Chart.Name }}-web-{{ .Values.image.product}}"
-          image: "{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ .Values.image.webTagPostfix | default "" }}"
+          image: "{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}"
           imagePullPolicy: IfNotPresent
           env:
             {{- if .Values.envs.web }}
             {{- toYaml .Values.envs.web | nindent 12 }}
             {{- end }}
             - name: SONETA_SERVER_ENDPOINTS
-              value: $({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
+              value: {{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
           ports:
             - name: http
               containerPort: 80
@@ -31,7 +31,7 @@ spec:
           resources:
             {{- toYaml .Values.resources.web | nindent 12 }}
       nodeSelector:
-        kubernetes.io/os: {{ include "soneta.nodeselector.os" . }}
+        kubernetes.io/os: {{ include "soneta.web.nodeselector.os" . }}
     {{- with .Values.nodeSelector }}
         {{- toYaml . | nindent 8 }}
     {{- end }}

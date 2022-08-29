@@ -17,14 +17,15 @@ spec:
     spec:
       containers:
         - name: "{{ .Chart.Name }}-webapi"
-          image: "{{ .Values.image.repository }}soneta/web.api:{{ .Values.image.tag }}{{ .Values.image.webTagPostfix | default "-nanoserver" }}"
+          image: "{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}"
           imagePullPolicy: IfNotPresent
+{{ include "soneta.webapi.command_args" . | indent 10 }}
           env:
             {{- if .Values.envs.webapi }}
             {{- toYaml .Values.envs.webapi | nindent 12 }}
             {{- end }}
             - name: SONETA_SERVER_ENDPOINTS
-              value: $({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
+              value: {{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
           ports:
             - name: http
               containerPort: 80
@@ -32,7 +33,7 @@ spec:
           resources:
             {{- toYaml .Values.resources.webapi | nindent 12 }}
       nodeSelector:
-        kubernetes.io/os: {{ include "soneta.nodeselector.os" . }}
+        kubernetes.io/os: {{ include "soneta.web.nodeselector.os" . }}
       {{- with .Values.nodeSelector }}
           {{- toYaml . | nindent 8 }}
       {{- end }}
