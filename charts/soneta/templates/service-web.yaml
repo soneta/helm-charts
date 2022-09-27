@@ -4,6 +4,10 @@ metadata:
   name: {{ include "soneta.fullname.web" . }}
   labels:
 {{ include "soneta.labels.web" . | indent 4 }}
+{{- if .Values.service.expireDate }}
+  annotations:
+    expireDate: {{ .Values.service.expireDate | quote }}
+{{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
