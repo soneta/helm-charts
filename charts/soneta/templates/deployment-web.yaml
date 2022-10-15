@@ -22,7 +22,7 @@ spec:
             {{- if .Values.envs.web }}
             {{- toYaml .Values.envs.web | nindent 12 }}
             {{- end }}
-            - name: SONETA_SERVER_ENDPOINTS
+            - name: Soneta_Web__ServerEndpoint
               value: {{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
           ports:
             - name: http
