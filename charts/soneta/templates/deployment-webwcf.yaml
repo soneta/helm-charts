@@ -26,6 +26,8 @@ spec:
             {{- end }}
             - name: Soneta_WebWcf__ServerEndpoint
               value: {{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
+            - name: SONETA_SERVER_ENDPOINTS
+              value: {{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
           ports:
             - name: http
               containerPort: 80
