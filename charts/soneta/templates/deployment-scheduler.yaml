@@ -40,7 +40,7 @@ spec:
             {{- end }}
             {{- if .Values.listaBazDanych }}
             - name: lista-baz-danych-volume
-              mountPath: "C:\\config"
+              mountPath: "/config"
             {{- end }}
       volumes:
         {{- if .Values.resources.pvc.enabled }}

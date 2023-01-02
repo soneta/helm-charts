@@ -150,7 +150,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.server.args" -}}
-{{- if contains "-net" .Values.image.tag -}}["--dbconfig=c:\\config\\lista-baz-danych.xml", "--urls=http://+:22000"]
+{{- if contains "-net" .Values.image.tag -}}["--dbconfig=/config/lista-baz-danych.xml", "--urls=http://+:22000"]
 {{- else -}}[ "/console", "/dbconfig=c:\\config\\lista-baz-danych.xml", "/noscheduler"]
 {{- end -}}
 {{- end -}}
@@ -165,7 +165,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.scheduler.args" -}}
-{{- if contains "-net" .Values.image.tag -}}["--mode=Daemon", "--dbconfig=c:\\config\\lista-baz-danych.xml"]
+{{- if contains "-net" .Values.image.tag -}}["--mode=Daemon", "--dbconfig=/config/lista-baz-danych.xml"]
 {{- else -}}[ "/console", "/dbconfig=c:\\config\\lista-baz-danych.xml"]
 {{- end -}}
 {{- end -}}
@@ -180,4 +180,8 @@ command: ["dotnet", "webapi.dll"]
 {{- if contains "-net" .Values.image.tag -}}
 command: ["dotnet", "webwcf.dll"]
 {{- end -}}
+{{- end -}}
+
+{{- define "soneta.frontend.serverendpoint" -}}
+{{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
 {{- end -}}
