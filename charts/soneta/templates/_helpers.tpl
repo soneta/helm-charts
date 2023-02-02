@@ -185,3 +185,8 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.frontend.serverendpoint" -}}
 {{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
 {{- end -}}
+
+{{/* Allow KubeVersion to be overridden. */}}
+{{- define "soneta.ingress.kubeVersion" -}}
+  {{- default .Capabilities.KubeVersion.Version -}}
+{{- end -}}
