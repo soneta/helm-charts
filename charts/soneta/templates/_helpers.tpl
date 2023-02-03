@@ -115,6 +115,8 @@ Other
 {{- define "soneta.web.tagPostfix" -}}
 {{- if contains "-net" .Values.image.tag -}}
 {{ .Values.image.webTagPostfix | default "-nanoserver" }}
+{{ else if .Values.image.linux -}}
+{{ .Values.image.webTagPostfix | default "-alpine" }}
 {{- else -}}
 {{ .Values.image.webTagPostfix | default "" }}
 {{- end -}}
