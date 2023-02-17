@@ -64,6 +64,14 @@ If release name contains chart name it will be used as a full name.
 {{- printf "%s-%s" (include "soneta.fullname" . ) "scheduler" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "soneta.fullname.pv" -}}
+{{- printf "%s-%s" (include "soneta.fullname" . ) "pv" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "soneta.fullname.pvc" -}}
+{{- printf "%s-%s" (include "soneta.fullname" . ) "pvc" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}
@@ -115,8 +123,6 @@ Other
 {{- define "soneta.web.tagPostfix" -}}
 {{- if contains "-net" .Values.image.tag -}}
 {{ .Values.image.webTagPostfix | default "-nanoserver" }}
-{{ else if .Values.image.linux -}}
-{{ .Values.image.webTagPostfix | default "-alpine" }}
 {{- else -}}
 {{ .Values.image.webTagPostfix | default "" }}
 {{- end -}}
@@ -152,9 +158,15 @@ Other
 {{- end -}}
 
 {{- define "soneta.server.args" -}}
-{{- if contains "-net" .Values.image.tag -}}["--dbconfig=/config/lista-baz-danych.xml", "--urls=http://+:22000"]
-{{- else -}}[ "/console", "/dbconfig=c:\\config\\lista-baz-danych.xml", "/noscheduler"]
-{{- end -}}
+  {{- if contains "-net" .Values.image.tag -}}
+    ["--dbconfig=/config/lista-baz-danych.xml", "--urls=http://+:22000"]
+  {{- else if .Values.args -}}
+    {{- if .Values.args.server -}}
+      {{- .Values.args.server -}}
+    {{- end -}}
+  {{- else -}}
+    [ "/console", "/dbconfig=c:\\config\\lista-baz-danych.xml", "/noscheduler"]
+  {{- end -}}
 {{- end -}}
 
 {{- define "soneta.scheduler.command" -}}
@@ -188,7 +200,14 @@ command: ["dotnet", "webwcf.dll"]
 {{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
 {{- end -}}
 
-{{/* Allow KubeVersion to be overridden. */}}
 {{- define "soneta.ingress.kubeVersion" -}}
   {{- default .Capabilities.KubeVersion.Version -}}
+{{- end -}}
+
+{{- define "soneta.resources.pvc.storageClassName" -}}
+  {{- if .Values.resources.pvc.storageClassName -}}
+    {{- default .Values.resources.pvc.storageClassName -}}
+  {{- else -}}
+    azurefile
+  {{- end -}}
 {{- end -}}

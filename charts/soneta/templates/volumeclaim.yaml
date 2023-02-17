@@ -6,7 +6,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: azurefile
+  storageClassName: {{ include "soneta.resources.pvc.storageClassName" . }}
   resources:
     requests:
       storage: {{ .Values.resources.pvc.requests }}
