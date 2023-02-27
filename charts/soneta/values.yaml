@@ -3,7 +3,6 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-
 image:
   product: "standard"
   tag: "2204.0.0"
@@ -41,6 +40,14 @@ resources:
     enabled: false
     requests: 5Gi
     mountPath: "D:"
+
+  smb:
+    enabled: false
+    request: 500Mi
+    mountPath: "E:"
+    folerPath:
+    smbSecretName:
+
   afs:
     enabled: false
     # accountName: your azure storage account name 

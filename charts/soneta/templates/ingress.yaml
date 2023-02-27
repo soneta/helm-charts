@@ -1,7 +1,11 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "soneta.fullname.web" . -}}
 {{- $releaseName := .Release.Name -}}
+{{- if semverCompare "<1.19-0" (include "soneta.ingress.kubeVersion" .)}}
 apiVersion: networking.k8s.io/v1beta1
+{{- else }}
+apiVersion: networking.k8s.io/v1
+{{- end }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -22,20 +26,48 @@ spec:
     - host: {{ $releaseName }}.{{ .Values.ingress.host }}
       http:
         paths:
-          - path: /
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: http
-          {{- if .Values.image.webapi }}
-          - path: /api/
-            backend:
-              serviceName: {{ include "soneta.fullname.webapi" . }}
-              servicePort: http
-          {{- end -}}
-          {{- if .Values.image.webwcf }}
-          - path: /Business/
-            backend:
-              serviceName: {{ include "soneta.fullname.webwcf" . }}
-              servicePort: http
-          {{- end -}}
+        {{- if semverCompare "<1.19-0" (include "soneta.ingress.kubeVersion" .)}}
+        - path: /
+          backend:
+            serviceName: {{ $fullName }}
+            servicePort: http
+        {{- if .Values.image.webapi }}
+        - path: /api/
+          backend:
+            serviceName: {{ include "soneta.fullname.webapi" . }}
+            servicePort: http
+        {{- end -}}
+        {{- if .Values.image.webwcf }}
+        - path: /Business/
+          backend:
+            serviceName: {{ include "soneta.fullname.webwcf" . }}
+            servicePort: http
+        {{- end -}}
+        {{- else }}
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ $fullName }}
+              port:
+                number: 80
+        {{- if .Values.image.webapi }}
+        - path: /api/
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ include "soneta.fullname.webapi" . }}
+              port:
+                number: 80
+        {{- end -}}
+        {{- if .Values.image.webwcf }}
+        - path: /Business/
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ include "soneta.fullname.webwcf" . }}
+              port:
+                number: 80
+        {{- end -}}
+{{- end }}
 {{- end }}

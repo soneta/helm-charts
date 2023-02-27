@@ -1,0 +1,25 @@
+{{- if .Values.resources.smb.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "soneta.fullname.pv" . }}
+spec:
+  capacity:
+    storage: {{ .Values.resources.smb.requests }}
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+    - vers=3.0
+  csi:
+    driver: smb.csi.k8s.io
+    readOnly: false
+    volumeHandle: {{ include "soneta.fullname.pv" . }}
+    volumeAttributes:
+      source: {{ .Values.resources.smb.folerPath }}
+    nodeStageSecretRef:
+      name: {{ .Values.resources.smb.smbSecretName }}
+      namespace: default
+{{- end }}

@@ -35,6 +35,10 @@ spec:
             - name: pvc-volume
               mountPath: {{ .Values.resources.pvc.mountPath | quote }}
             {{- end }}
+            {{- if .Values.resources.smb.enabled }}
+            - name: smb-volume
+              mountPath: {{ .Values.resources.smb.mountPath | quote }}
+            {{- end }}
             {{- if .Values.resources.afs.enabled }}
             - name: afs-volume
               mountPath: {{ .Values.resources.afs.mountPath | quote }}
@@ -48,6 +52,11 @@ spec:
         - name: pvc-volume
           persistentVolumeClaim:
             claimName: {{ include "soneta.fullname.server" . }}
+        {{- end }}
+        {{- if .Values.resources.smb.enabled }}
+        - name: smb-volume
+          persistentVolumeClaim:
+            claimName: {{ include "soneta.fullname.pvc" . }}
         {{- end }}
         {{- if .Values.resources.afs.enabled }}
         - name: afs-volume
