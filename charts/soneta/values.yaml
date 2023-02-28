@@ -90,6 +90,19 @@ tolerations: []
 affinity: {}
 
 envs:
+  frontend: []
   web: []
   webapi: []
+  webwcf: []
+  backend: []
   server: []
+  scheduler: []
+
+args:
+  frontend: []
+  web: []
+  webapi: []
+  webwcf: []
+  backend: []
+  server: []
+  scheduler: []

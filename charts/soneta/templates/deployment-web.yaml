@@ -18,16 +18,13 @@ spec:
         - name: "{{ .Chart.Name }}-web-{{ .Values.image.product}}"
           image: "{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}"
           imagePullPolicy: IfNotPresent
+          args:
+            {{- include "soneta.args" .Values.args.frontend | indent 12 }}
+            {{- include "soneta.args" .Values.args.web | indent 12 }}
           env:
-            {{- if .Values.envs.web }}
-            {{- toYaml .Values.envs.web | nindent 12 }}
-            {{- end }}
-            - name: SONETA_SERVER_ENDPOINTS
-              value: {{ include "soneta.frontend.serverendpoint" . }}
-            - name: SONETA_WEB__SERVERENDPOINT
-              value: {{ include "soneta.frontend.serverendpoint" . }}
-            - name: SONETA_WEB__URLS
-              value: http://+:80
+            {{- include "soneta.envs.frontend" . | nindent 12}}
+            {{- include "soneta.envs" .Values.envs.frontend | indent 12 }}
+            {{- include "soneta.envs" .Values.envs.web | indent 12 }}
           ports:
             - name: http
               containerPort: 80

@@ -19,17 +19,22 @@ spec:
           image: "{{ .Values.image.repository }}soneta/server.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.server.tagPostfix" . }}"
           imagePullPolicy: IfNotPresent
           command: {{ include "soneta.server.command" . }}
-          args: {{ include "soneta.server.args" . }}
+          args: 
+            {{- include "soneta.server.args" . | indent 12 }}
+          env:
+            {{- include "soneta.envs.dbconfig" . | nindent 12 }}
+            {{- if contains "-net" .Values.image.tag }}
+            - name: SONETA_URLS
+              value: http://+:22000
+            {{- end }}
+            {{- include "soneta.envs" .Values.envs.backend | indent 12 }}
+            {{- include "soneta.envs" .Values.envs.server | indent 12 }}
           ports:
             - name: {{ .Values.service.server.port0Name }}
               containerPort: {{ .Values.service.server.port0 }}
               protocol: TCP
           resources:
             {{- toYaml .Values.resources.server | nindent 12 }}
-          env:
-            {{- if .Values.envs.server }}
-            {{- toYaml .Values.envs.server | nindent 12 }}
-            {{- end }}
           volumeMounts:
             {{- if .Values.resources.pvc.enabled }}
             - name: pvc-volume

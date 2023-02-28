@@ -85,9 +85,7 @@ Common labels
 {{- define "soneta.labels" -}}
 helm.sh/chart: {{ include "soneta.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
+app.kubernetes.io/version: {{ .Values.image.tag | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 soneta.product: {{ .Values.image.product }}
 {{- end -}}
@@ -157,16 +155,47 @@ Other
 {{- end -}}
 {{- end -}}
 
+{{- define "soneta.args" -}}
+  {{- if . }}
+{{ toYaml . }}
+  {{- end }}
+{{- end -}}
+
+{{- define "soneta.envs" -}}
+  {{- if . }}
+{{ toYaml . }}
+  {{- end }}
+{{- end -}}
+
+{{- define "soneta.dbconfig" -}}
+{{- if contains "-net" .Values.image.tag -}}
+/config/lista-baz-danych.xml
+{{- else -}}
+c:\\config\\lista-baz-danych.xml
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.envs.dbconfig" -}}
+{{- if contains "-net" .Values.image.tag -}}
+- name: SONETA_DBCONFIG
+  value: {{ include "soneta.dbconfig" . }}
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.args.dbconfig" -}}
+{{- if not (contains "-net" .Values.image.tag) }}
+- /dbconfig={{ include "soneta.dbconfig" . }}
+{{- end -}}
+{{- end -}}
+
 {{- define "soneta.server.args" -}}
-  {{- if contains "-net" .Values.image.tag -}}
-    ["--dbconfig=/config/lista-baz-danych.xml", "--urls=http://+:22000"]
-  {{- else if .Values.args -}}
-    {{- if .Values.args.server -}}
-      {{- .Values.args.server -}}
-    {{- end -}}
-  {{- else -}}
-    [ "/console", "/dbconfig=c:\\config\\lista-baz-danych.xml", "/noscheduler"]
-  {{- end -}}
+  {{- if not (contains "-net" .Values.image.tag) }}
+- /console
+- /noscheduler
+  {{- end -}} 
+  {{ include "soneta.args.dbconfig" . }}
+  {{- include "soneta.args" .Values.args.backend -}}
+  {{- include "soneta.args" .Values.args.server -}}
 {{- end -}}
 
 {{- define "soneta.scheduler.command" -}}
@@ -179,18 +208,23 @@ Other
 {{- end -}}
 
 {{- define "soneta.scheduler.args" -}}
-{{- if contains "-net" .Values.image.tag -}}["--mode=Daemon", "--dbconfig=/config/lista-baz-danych.xml"]
-{{- else -}}[ "/console", "/dbconfig=c:\\config\\lista-baz-danych.xml"]
-{{- end -}}
+  {{- if contains "-net" .Values.image.tag -}}
+- --mode=Daemon
+  {{- else -}}
+- /console
+  {{- end -}}
+  {{ include "soneta.args.dbconfig" . }}
+  {{- include "soneta.args" .Values.args.backend -}}
+  {{- include "soneta.args" .Values.args.scheduler -}}
 {{- end -}}
 
-{{- define "soneta.webapi.command_args" -}}
+{{- define "soneta.webapi.commands" -}}
 {{- if contains "-net" .Values.image.tag -}}
 command: ["dotnet", "webapi.dll"]
 {{- end -}}
 {{- end -}}
 
-{{- define "soneta.webwcf.command_args" -}}
+{{- define "soneta.webwcf.commands" -}}
 {{- if contains "-net" .Values.image.tag -}}
 command: ["dotnet", "webwcf.dll"]
 {{- end -}}
@@ -198,6 +232,15 @@ command: ["dotnet", "webwcf.dll"]
 
 {{- define "soneta.frontend.serverendpoint" -}}
 {{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
+{{- end -}}
+
+{{- define "soneta.envs.frontend" -}}
+- name: SONETA_SERVER_ENDPOINTS
+  value: {{ include "soneta.frontend.serverendpoint" . }}
+- name: SONETA_SERVERENDPOINT
+  value: {{ include "soneta.frontend.serverendpoint" . }}
+- name: SONETA__URLS
+  value: http://+:80
 {{- end -}}
 
 {{- define "soneta.ingress.kubeVersion" -}}

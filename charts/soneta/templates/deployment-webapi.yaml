@@ -19,17 +19,14 @@ spec:
         - name: "{{ .Chart.Name }}-webapi"
           image: "{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}"
           imagePullPolicy: IfNotPresent
-{{ include "soneta.webapi.command_args" . | indent 10 }}
+          {{- include "soneta.webapi.commands" . | nindent 10 }}
+          args:
+            {{- include "soneta.args" .Values.args.frontend | indent 12 }}
+            {{- include "soneta.args" .Values.args.webapi | indent 12 }}
           env:
-            {{- if .Values.envs.webapi }}
-            {{- toYaml .Values.envs.webapi | nindent 12 }}
-            {{- end }}
-            - name: SONETA_SERVER_ENDPOINTS
-              value: {{ include "soneta.frontend.serverendpoint" . }}
-            - name: SONETA_WEBAPI__SERVERENDPOINT
-              value: {{ include "soneta.frontend.serverendpoint" . }}
-            - name: SONETA_WEBAPI__URLS
-              value: http://+:80
+            {{- include "soneta.envs.frontend" . | nindent 12}}
+            {{- include "soneta.envs" .Values.envs.frontend | indent 12 }}
+            {{- include "soneta.envs" .Values.envs.webapi | indent 12 }}
           ports:
             - name: http
               containerPort: 80

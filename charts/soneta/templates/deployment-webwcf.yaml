@@ -19,17 +19,14 @@ spec:
         - name: "{{ .Chart.Name }}-webwcf"
           image: "{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}"
           imagePullPolicy: IfNotPresent
-{{ include "soneta.webwcf.command_args" . | indent 10 }}
+          {{- include "soneta.webwcf.commands" . | nindent 10 }}
+          args:
+            {{- include "soneta.args" .Values.args.frontend | indent 12 }}
+            {{- include "soneta.args" .Values.args.webwcf | indent 12 }}
           env:
-            {{- if .Values.envs.webwcf }}
-            {{- toYaml .Values.envs.webwcf | nindent 12 }}
-            {{- end }}
-            - name: SONETA_SERVER_ENDPOINTS
-              value: {{ include "soneta.frontend.serverendpoint" . }}
-            - name: SONETA_WEBWCF__SERVERENDPOINT
-              value: {{ include "soneta.frontend.serverendpoint" . }}
-            - name: SONETA_WEBWCF__URLS
-              value: http://+:80
+            {{- include "soneta.envs.frontend" . | nindent 12}}
+            {{- include "soneta.envs" .Values.envs.frontend | indent 12 }}
+            {{- include "soneta.envs" .Values.envs.webwcf | indent 12 }}
           ports:
             - name: http
               containerPort: 80

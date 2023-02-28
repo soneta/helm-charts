@@ -1,6 +1,6 @@
 apiVersion: v1
-version: 0.4.0-alfa.3
-appVersion: "2204.0.0"
+version: 0.4.0-alfa.4
+appVersion: ">=2204.0.0"
 kubeVersion: ">=1.16.0"
 name: soneta
 description: Soneta products Helm chart for Kubernetes
@@ -17,7 +17,7 @@ maintainers:
     - name: bartcho
 #       email:
 #       url:
-# icon: 
+# icon:
 annotations:
     artifacthub.io/containsSecurityUpdates: "false"
     artifacthub.io/changes: |
