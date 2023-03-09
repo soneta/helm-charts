@@ -32,28 +32,9 @@ ingress:
   tlsSecretName: soneta-ingress-tls
 
 resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  pvc:
-    enabled: false
-    requests: 5Gi
-    mountPath: "D:"
-
-  smb:
-    enabled: false
-    request: 500Mi
-    mountPath: "E:"
-    folerPath:
-    smbSecretName:
-
-  afs:
-    enabled: false
-    # accountName: your azure storage account name 
-    # accountKey: your azure storage account key
-    # shareName: your azure storage share name
-    mountPath: "Z:"
+  pvc: {}
+  smb: {}
+  afs: {}
   web:
     limits:
       cpu: 500m
@@ -88,6 +69,16 @@ nodeSelector: []
 tolerations: []
 
 affinity: {}
+
+volumes:
+  all: []
+  frontend: []
+  web: []
+  webapi: []
+  webwcf: []
+  backend: []
+  server: []
+  scheduler: []
 
 envs:
   frontend: []

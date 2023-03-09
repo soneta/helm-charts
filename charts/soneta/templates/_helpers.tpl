@@ -120,7 +120,7 @@ Other
 */}}
 {{- define "soneta.web.tagPostfix" -}}
 {{- if contains "-net" .Values.image.tag -}}
-{{ .Values.image.webTagPostfix | default "-nanoserver" }}
+{{ .Values.image.webTagPostfix | default "-windowsservercore" }}
 {{- else -}}
 {{ .Values.image.webTagPostfix | default "" }}
 {{- end -}}
@@ -128,7 +128,7 @@ Other
 
 {{- define "soneta.server.tagPostfix" -}}
 {{- if contains "-net" .Values.image.tag -}}
-{{ .Values.image.serverTagPostfix | default "-nanoserver" }}
+{{ .Values.image.serverTagPostfix | default "-windowsservercore" }}
 {{- else -}}
 {{ .Values.image.serverTagPostfix  | default "" }}
 {{- end -}}
@@ -237,10 +237,44 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.envs.frontend" -}}
 - name: SONETA_SERVER_ENDPOINTS
   value: {{ include "soneta.frontend.serverendpoint" . }}
-- name: SONETA_SERVERENDPOINT
+- name: SONETA_FRONTEND__SERVERENDPOINT
   value: {{ include "soneta.frontend.serverendpoint" . }}
-- name: SONETA__URLS
+- name: SONETA_URLS
   value: http://+:80
+{{- end -}}
+
+{{- define "soneta.volumes" -}}
+{{- if . }}
+{{- range $i, $val := . }}
+- name: {{ $val.name }}
+{{- toYaml $val.spec | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "soneta.volumes.listaBazDanych" -}}
+- name: lista-baz-danych-volume
+  configMap:
+    name: {{ include "soneta.fullname.server" . }}
+    items:
+    - key: lista-baz-danych
+      path: "lista-baz-danych.xml"
+{{- end -}}
+
+{{- define "soneta.volumeMounts" -}}
+{{- if . }}
+{{- range $i, $val := . }}
+{{- if $val.mountPath }}
+- name: {{ $val.name }}
+  mountPath: {{ $val.mountPath | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "soneta.volumeMounts.listaBazDanych" -}}
+- name: lista-baz-danych-volume
+  mountPath: "/config"
 {{- end -}}
 
 {{- define "soneta.ingress.kubeVersion" -}}

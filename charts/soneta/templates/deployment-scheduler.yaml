@@ -31,39 +31,15 @@ spec:
           resources:
             {{- toYaml .Values.resources.scheduler | nindent 12 }}
           volumeMounts:
-            {{- if .Values.resources.pvc.enabled }}
-            - name: pvc-volume
-              mountPath: {{ .Values.resources.pvc.mountPath | quote }}
-            {{- end }}
-            {{- if .Values.resources.afs.enabled }}
-            - name: afs-volume
-              mountPath: {{ .Values.resources.afs.mountPath | quote }}
-            {{- end }}
-            {{- if .Values.listaBazDanych }}
-            - name: lista-baz-danych-volume
-              mountPath: "/config"
-            {{- end }}
+            {{- include "soneta.volumeMounts.listaBazDanych" . | nindent 12 }}
+            {{- include "soneta.volumeMounts" .Values.volumes.all | indent 12 }}
+            {{- include "soneta.volumeMounts" .Values.volumes.backend | indent 12 }}
+            {{- include "soneta.volumeMounts" .Values.volumes.scheduler | indent 12 }}
       volumes:
-        {{- if .Values.resources.pvc.enabled }}
-        - name: pvc-volume
-          persistentVolumeClaim:
-            claimName: {{ include "soneta.fullname.server" . }}
-        {{- end }}
-        {{- if .Values.resources.afs.enabled }}
-        - name: afs-volume
-          azureFile:
-            secretName: {{ include "soneta.fullname.server" . }}
-            shareName: {{ required "Azure storage share name is required" .Values.resources.afs.shareName | quote }}
-            readOnly: false
-        {{- end }}
-        {{- if .Values.listaBazDanych }}
-        - name: lista-baz-danych-volume
-          configMap:
-            name: {{ include "soneta.fullname.server" . }}
-            items:
-            - key: lista-baz-danych
-              path: "lista-baz-danych.xml"
-        {{- end }}
+        {{- include "soneta.volumes.listaBazDanych" . | nindent 8 }}
+        {{- include "soneta.volumes" .Values.volumes.all | indent 8 }}
+        {{- include "soneta.volumes" .Values.volumes.backend | indent 8 }}
+        {{- include "soneta.volumes" .Values.volumes.server | indent 8 }}
       nodeSelector:
         kubernetes.io/os: {{ include "soneta.server.nodeselector.os" . }}
       {{- with .Values.nodeSelector }}

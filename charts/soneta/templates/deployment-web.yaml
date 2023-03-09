@@ -31,6 +31,14 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.resources.web | nindent 12 }}
+          volumeMounts:
+            {{- include "soneta.volumeMounts" .Values.volumes.all | indent 12 }}
+            {{- include "soneta.volumeMounts" .Values.volumes.frontend | indent 12 }}
+            {{- include "soneta.volumeMounts" .Values.volumes.web | indent 12 }}
+      volumes:
+        {{- include "soneta.volumeMounts" .Values.volumes.all | indent 8 }}
+        {{- include "soneta.volumes" .Values.volumes.frontend | indent 8 }}
+        {{- include "soneta.volumes" .Values.volumes.web | indent 8 }}
       nodeSelector:
         kubernetes.io/os: {{ include "soneta.web.nodeselector.os" . }}
     {{- with .Values.nodeSelector }}
