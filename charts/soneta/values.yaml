@@ -32,9 +32,6 @@ ingress:
   tlsSecretName: soneta-ingress-tls
 
 resources:
-  pvc: {}
-  smb: {}
-  afs: {}
   web:
     limits:
       cpu: 500m
