@@ -8,7 +8,7 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-{{ include "soneta.labels.web" . | indent 6 }}
+{{ include "soneta.selectors.web" . | indent 6 }}
   template:
     metadata:
       labels:
@@ -23,6 +23,7 @@ spec:
             {{- include "soneta.args" .Values.args.web | indent 12 }}
           env:
             {{- include "soneta.envs.frontend" . | nindent 12}}
+            {{- include "soneta.envs" .Values.envs.all | indent 12 }}
             {{- include "soneta.envs" .Values.envs.frontend | indent 12 }}
             {{- include "soneta.envs" .Values.envs.web | indent 12 }}
           ports:

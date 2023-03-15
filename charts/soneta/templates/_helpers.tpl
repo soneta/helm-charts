@@ -82,12 +82,41 @@ Create chart name and version as used by the chart label.
 {{/*
 Common labels
 */}}
-{{- define "soneta.labels" -}}
-helm.sh/chart: {{ include "soneta.chart" . }}
+{{- define "soneta.selectors" -}}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Values.image.tag | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 soneta.product: {{ .Values.image.product }}
+{{- end -}}
+
+{{- define "soneta.selectors.server" -}}
+app.kubernetes.io/name: {{ include "soneta.name.server" . }}
+{{ include "soneta.selectors" . }}
+{{- end -}}
+
+{{- define "soneta.selectors.web" -}}
+app.kubernetes.io/name: {{ include "soneta.name.web" . }}
+{{ include "soneta.selectors" . }}
+{{- end -}}
+
+{{- define "soneta.selectors.webapi" -}}
+app.kubernetes.io/name: {{ include "soneta.name.webapi" . }}
+{{ include "soneta.selectors" . }}
+{{- end -}}
+
+{{- define "soneta.selectors.webwcf" -}}
+app.kubernetes.io/name: {{ include "soneta.name.webwcf" . }}
+{{ include "soneta.selectors" . }}
+{{- end -}}
+
+{{- define "soneta.selectors.scheduler" -}}
+app.kubernetes.io/name: {{ include "soneta.name.scheduler" . }}
+{{ include "soneta.selectors" . }}
+{{- end -}}
+
+{{- define "soneta.labels" -}}
+{{ include "soneta.selectors" . }}
+helm.sh/chart: {{ include "soneta.chart" . }}
+app.kubernetes.io/version: {{ .Values.image.tag | quote }}
 {{- end -}}
 
 {{- define "soneta.labels.server" -}}

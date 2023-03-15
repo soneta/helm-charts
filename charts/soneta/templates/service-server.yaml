@@ -6,6 +6,7 @@ metadata:
 {{ include "soneta.labels.server" . | indent 4 }}
 spec:
   type: {{ .Values.service.server.type }}
+  sessionAffinity: ClientIP
   ports:
     - port: {{ .Values.service.server.port0 }}
       targetPort: {{ .Values.service.server.port0Name }}
