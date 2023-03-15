@@ -11,11 +11,15 @@ metadata:
   name: {{ $fullName }}
   labels:
 {{ include "soneta.labels.web" . | indent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+  {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .Values.ingress.releaseAutoAnnotation }}
+    {{ .key }}: {{ printf "%s%s%s" .prefix $.Release.Name .postfix  | upper }}
+  {{- end}}
 spec:
+  ingressClassName: {{ .Values.ingress.class }}
 {{- if .Values.ingress.tlsSecretName }}
   tls:
     - hosts:
