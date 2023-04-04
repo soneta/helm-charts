@@ -12,5 +12,9 @@ spec:
       targetPort: {{ .Values.service.server.port0Name }}
       protocol: TCP
       name: {{ .Values.service.server.port0Name }}
+    - port: 52325
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
   selector:
 {{ include "soneta.labels.server" . | indent 4 }}

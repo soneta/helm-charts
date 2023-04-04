@@ -310,10 +310,52 @@ command: ["dotnet", "webwcf.dll"]
   {{- default .Capabilities.KubeVersion.Version -}}
 {{- end -}}
 
-{{- define "soneta.resources.pvc.storageClassName" -}}
-  {{- if .Values.resources.pvc.storageClassName -}}
-    {{- default .Values.resources.pvc.storageClassName -}}
-  {{- else -}}
-    azurefile
-  {{- end -}}
+{{- define "soneta.volumes.tmp" -}}
+- name: tmp
+  emptyDir: {}
+{{- end -}}
+
+{{- define "soneta.volumeMounts.tmp" -}}
+- name: tmp
+  mountPath: /tmp
+{{- end -}}
+
+{{- define "soneta.monitor.sidecar" -}}
+{{- if .enabled }}
+- name: monitor
+  image: mcr.microsoft.com/dotnet/monitor
+  imagePullPolicy: Always
+  args:
+    - collect
+    - --no-auth
+  env:
+    - name: DOTNET_gcServer
+      value: "0" 
+    - name: DotnetMonitor_Urls
+      value: 'http://localhost:52323'
+    - name: DotnetMonitor_Metrics__Endpoints
+      value: 'http://+:52325'
+    - name: DotnetMonitor_Storage__DumpTempFolder
+      value: /tmp/dumps
+    - name: DotnetMonitor_Logging__Console__FormatterName
+      value: simple 
+  ports:
+    - name: monitor
+      containerPort: 52323
+    - name: metrics
+      containerPort: 52325
+  volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+{{- end }}
+{{- end -}}
+
+{{- define "soneta.monitor.sidecar." -}}
 {{- end -}}

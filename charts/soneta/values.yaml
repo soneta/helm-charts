@@ -36,6 +36,13 @@ ingress:
   host: enova365.pl
   # tlsSecretName: soneta-ingress-tls
 
+monitor:
+  frontend: 
+    enabled: false
+  backend: 
+    enabled: false
+
+
 resources:
   web:
     limits:
