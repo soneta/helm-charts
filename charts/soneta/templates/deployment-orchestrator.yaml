@@ -1,4 +1,4 @@
-{{- if not .Values.image.orchestrator -}}
+{{- if .Values.image.orchestrator -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,11 +16,10 @@ spec:
 {{ include "soneta.labels.server" . | indent 8 }}
     spec:
       containers:
-        - name: "{{ .Chart.Name }}-server-{{ .Values.image.product}}"
-          image: "{{ include "soneta.server.image" . }}"
+        - name: "{{ .Chart.Name }}-orchestrator-{{ .Values.image.product}}"
+          image: "{{ .Values.image.repository }}soneta:dev"
           imagePullPolicy: IfNotPresent
-          command: {{ include "soneta.server.command" . }}
-          {{ include "soneta.dev.backend.workingDir" . }}
+          command: ["tail", "-f",  "/dev/null"]
           args: 
             {{- include "soneta.server.args" . | indent 12 }}
           env:

@@ -1,3 +1,4 @@
+{{- if not .Values.image.orchestrator -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,7 +17,7 @@ spec:
     spec:
       containers:
         - name: "{{ .Chart.Name }}-web-{{ .Values.image.product}}"
-          image: "{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}"
+          image: "{{ include "soneta.web.image" . }}"
           imagePullPolicy: IfNotPresent
           {{- include "soneta.web.commands" . | nindent 10 }}
           args:
@@ -54,3 +55,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+{{- end }}

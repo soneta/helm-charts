@@ -163,6 +163,24 @@ Other
 {{- end -}}
 {{- end -}}
 
+{{- define "soneta.dev.image" -}}{{ .Values.image.repository }}soneta:dev{{- end -}}
+
+{{- define "soneta.web.image" -}}
+{{- if .Values.image.dev -}}
+{{ .Values.image.repository }}soneta:dev
+{{- else -}}
+{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.server.image" -}}
+{{- if .Values.image.dev -}}
+{{ .Values.image.repository }}soneta:dev
+{{- else -}}
+{{ .Values.image.repository }}soneta/server.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.server.tagPostfix" . }}
+{{- end -}}
+{{- end -}}
+
 {{- define "soneta.web.enpointProtocol" -}}
 {{- if include "soneta.isNet" . -}}http://{{- else -}}{{- end -}}
 {{- end -}}
@@ -175,11 +193,28 @@ Other
 {{ if eq (include "soneta.server.tagPostfix" .) "-alpine" }}linux{{ else }}windows{{ end }}
 {{- end -}}
 
+{{- define "soneta.dev.frontend.workingDir" -}}
+{{ if .Values.image.dev }}workingDir: /src/bin/front-end/Debug{{else}}{{ end }}
+{{- end -}}
+
+{{- define "soneta.dev.backend.workingDir" -}}
+{{ if .Values.image.dev }}workingDir: /src/bin/Debug{{else}}{{ end }}
+{{- end -}}
+
 {{- define "soneta.server.command" -}}
 {{- if include "soneta.isNet" . -}}["dotnet", "server.dll"]
 {{- else -}}
     {{- if eq .Values.image.product "standard"  }}[ "SonetaServer.exe" ]
         {{- else -}}[ "SonetaServerPremium.exe" ]
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.web.command" -}}
+{{- if contains "-net" .Values.image.tag -}}["dotnet", "web.dll"]
+{{- else -}}
+    {{- if eq .Values.image.product "standard"  }}[ "Soneta.Web.Standard.exe" ]
+        {{- else -}}[ "Soneta.Web.Premium.exe" ]
     {{- end -}}
 {{- end -}}
 {{- end -}}
