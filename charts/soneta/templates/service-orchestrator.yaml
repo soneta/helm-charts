@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "soneta.fullname.orchestrator" . }}
+  labels:
+{{ include "soneta.labels.orchestrator" . | indent 4 }}
+spec:
+  type: {{ .Values.service.server.type }}
+  # sessionAffinity: ClientIP
+  ports:
+    - port: {{ .Values.service.server.port0 }}
+      targetPort: {{ .Values.service.server.port0Name }}
+      protocol: TCP
+      name: {{ .Values.service.server.port0Name }}
+  selector:
+{{ include "soneta.labels.orchestrator" . | indent 4 }}
