@@ -1,30 +1,29 @@
-{{- if .Values.image.orchestrator -}}
+{{- define "soneta.deployment.server" -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "soneta.fullname.orchestrator" . }}
+  name: {{ include "soneta.fullname.server" . }}
   labels:
-{{ include "soneta.labels.orchestrator" . | indent 4 }}
+{{ include "soneta.labels.server" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-{{ include "soneta.selectors.orchestrator" . | indent 6 }}
+{{ include "soneta.selectors.server" . | indent 6 }}
   template:
     metadata:
       labels:
-{{ include "soneta.labels.orchestrator" . | indent 8 }}
+{{ include "soneta.labels.server" . | indent 8 }}
     spec:
       containers:
-        - name: "{{ .Chart.Name }}-orchestrator-{{ .Values.image.product}}"
+        - name: "{{ .Chart.Name }}-server-{{ .Values.image.product}}"
           image: "{{ include "soneta.server.image" . }}"
           imagePullPolicy: IfNotPresent
-          command: ["dotnet", "orchestrator.dll",  "kubernetes", "start"]
+          command: {{ include "soneta.server.command" . }}
           args: 
             {{- include "soneta.server.args" . | indent 12 }}
           env:
-            - name: SONETA_TEMPLATES__PATH
-              value: /templates
+            {{- include "soneta.envs.dbconfig" . | nindent 12 }}
             {{- if contains "-net" .Values.image.tag }}
             - name: SONETA_URLS
               value: http://+:22000
@@ -39,12 +38,12 @@ spec:
           resources:
             {{- toYaml .Values.resources.server | nindent 12 }}
           volumeMounts:
-            {{- include "soneta.volumeMounts.templates" . | nindent 12 }}
+            {{- include "soneta.volumeMounts.listaBazDanych" . | nindent 12 }}
             {{- include "soneta.volumeMounts" .Values.volumes.all | indent 12 }}
             {{- include "soneta.volumeMounts" .Values.volumes.backend | indent 12 }}
             {{- include "soneta.volumeMounts" .Values.volumes.server | indent 12 }}
       volumes:
-        {{- include "soneta.volumes.templates" . | nindent 8 }}
+        {{- include "soneta.volumes.listaBazDanych" . | nindent 8 }}
         {{- include "soneta.volumes" .Values.volumes.all | indent 8 }}
         {{- include "soneta.volumes" .Values.volumes.backend | indent 8 }}
         {{- include "soneta.volumes" .Values.volumes.server | indent 8 }}
@@ -61,4 +60,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-{{- end }}
+{{- end -}}

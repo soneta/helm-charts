@@ -6,6 +6,10 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "soneta.name.orchestrator" -}}
+{{- printf "%s-%s" (include "soneta.name" . ) "orchestrator" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "soneta.name.server" -}}
 {{- printf "%s-%s" (include "soneta.name" . ) "server" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -42,6 +46,10 @@ If release name contains chart name it will be used as a full name.
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{/*- end -*/}}
 {{- end -}}
+{{- end -}}
+
+{{- define "soneta.fullname.orchestrator" -}}
+{{- printf "%s-%s" (include "soneta.fullname" . ) "orchestrator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "soneta.fullname.web" -}}
@@ -88,6 +96,11 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 soneta.product: {{ .Values.image.product }}
 {{- end -}}
 
+{{- define "soneta.selectors.orchestrator" -}}
+app.kubernetes.io/name: {{ include "soneta.name.orchestrator" . }}
+{{ include "soneta.selectors" . }}
+{{- end -}}
+
 {{- define "soneta.selectors.server" -}}
 app.kubernetes.io/name: {{ include "soneta.name.server" . }}
 {{ include "soneta.selectors" . }}
@@ -117,6 +130,11 @@ app.kubernetes.io/name: {{ include "soneta.name.scheduler" . }}
 {{ include "soneta.selectors" . }}
 helm.sh/chart: {{ include "soneta.chart" . }}
 app.kubernetes.io/version: {{ .Values.image.tag | quote }}
+{{- end -}}
+
+{{- define "soneta.labels.orchestrator" -}}
+app.kubernetes.io/name: {{ include "soneta.name.orchestrator" . }}
+{{ include "soneta.labels" . }}
 {{- end -}}
 
 {{- define "soneta.labels.server" -}}
@@ -163,22 +181,12 @@ Other
 {{- end -}}
 {{- end -}}
 
-{{- define "soneta.dev.image" -}}{{ .Values.image.repository }}soneta:dev{{- end -}}
-
 {{- define "soneta.web.image" -}}
-{{- if .Values.image.dev -}}
-{{ .Values.image.repository }}soneta:dev
-{{- else -}}
 {{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}
-{{- end -}}
 {{- end -}}
 
 {{- define "soneta.server.image" -}}
-{{- if .Values.image.dev -}}
-{{ .Values.image.repository }}soneta:dev
-{{- else -}}
 {{ .Values.image.repository }}soneta/server.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.server.tagPostfix" . }}
-{{- end -}}
 {{- end -}}
 
 {{- define "soneta.web.enpointProtocol" -}}
@@ -193,12 +201,8 @@ Other
 {{ if eq (include "soneta.server.tagPostfix" .) "-alpine" }}linux{{ else }}windows{{ end }}
 {{- end -}}
 
-{{- define "soneta.dev.frontend.workingDir" -}}
-{{ if .Values.image.dev }}workingDir: /src/bin/front-end/Debug{{else}}{{ end }}
-{{- end -}}
-
-{{- define "soneta.dev.backend.workingDir" -}}
-{{ if .Values.image.dev }}workingDir: /src/bin/Debug{{else}}{{ end }}
+{{- define "soneta.orchestrator.command" -}}
+["dotnet", "orchestrator", "kubernetes"]
 {{- end -}}
 
 {{- define "soneta.server.command" -}}
@@ -322,6 +326,17 @@ command: ["dotnet", "webwcf.dll"]
 {{- end }}
 {{- end -}}
 
+{{- define "soneta.volumes.templates" -}}
+- name: templates-volume
+  configMap:
+    name: {{ include "soneta.fullname.orchestrator" . }}
+{{- end -}}
+
+{{- define "soneta.volumeMounts.templates" -}}
+- name: templates-volume
+  mountPath: "/templates"
+{{- end -}}
+
 {{- define "soneta.volumes.listaBazDanych" -}}
 - name: lista-baz-danych-volume
   configMap:
@@ -329,6 +344,11 @@ command: ["dotnet", "webwcf.dll"]
     items:
     - key: lista-baz-danych
       path: "lista-baz-danych.xml"
+{{- end -}}
+
+{{- define "soneta.volumeMounts.listaBazDanych" -}}
+- name: lista-baz-danych-volume
+  mountPath: "/config"
 {{- end -}}
 
 {{- define "soneta.volumeMounts" -}}
@@ -342,10 +362,6 @@ command: ["dotnet", "webwcf.dll"]
 {{- end }}
 {{- end -}}
 
-{{- define "soneta.volumeMounts.listaBazDanych" -}}
-- name: lista-baz-danych-volume
-  mountPath: "/config"
-{{- end -}}
 
 {{- define "soneta.ingress.kubeVersion" -}}
   {{- default .Capabilities.KubeVersion.Version -}}

@@ -4,7 +4,6 @@
 
 replicaCount: 1
 image:
-  dev: false
   product: "standard"
   tag: "2306.2.7-net"
   repository: ""
