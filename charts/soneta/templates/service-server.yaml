@@ -6,7 +6,7 @@ metadata:
 {{ include "soneta.labels.server" . | indent 4 }}
 spec:
   type: {{ .Values.service.server.type }}
-  sessionAffinity: ClientIP
+  {{ if gt (int64 .Values.replicaCount) 1 }}sessionAffinity: ClientIP{{ end }}
   ports:
     - port: {{ .Values.service.server.port0 }}
       targetPort: {{ .Values.service.server.port0Name }}

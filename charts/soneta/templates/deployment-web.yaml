@@ -18,6 +18,7 @@ spec:
         - name: "{{ .Chart.Name }}-web-{{ .Values.image.product}}"
           image: "{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}"
           imagePullPolicy: IfNotPresent
+          {{- include "soneta.web.commands" . | nindent 10 }}
           args:
             {{- include "soneta.args" .Values.args.frontend | indent 12 }}
             {{- include "soneta.args" .Values.args.web | indent 12 }}

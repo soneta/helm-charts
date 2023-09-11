@@ -247,6 +247,12 @@ c:\\config\\lista-baz-danych.xml
   {{- include "soneta.args" .Values.args.scheduler -}}
 {{- end -}}
 
+{{- define "soneta.web.commands" -}}
+{{- if contains "-net" .Values.image.tag -}}
+command: ["dotnet", "web.dll"]
+{{- end -}}
+{{- end -}}
+
 {{- define "soneta.webapi.commands" -}}
 {{- if contains "-net" .Values.image.tag -}}
 command: ["dotnet", "webapi.dll"]
