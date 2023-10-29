@@ -5,7 +5,7 @@
 replicaCount: 1
 image:
   product: "standard"
-  tag: "2204.0.0"
+  tag: "2306.2.7-net"
   repository: ""
   scheduler: false
   webapi: false
