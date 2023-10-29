@@ -2,6 +2,31 @@ apiVersion: v1
 entries:
   soneta:
   - annotations:
+      artifacthub.io/changes: '- net6 product images support'
+      artifacthub.io/containsSecurityUpdates: "false"
+    apiVersion: v1
+    appVersion: '>=2204.0.0'
+    created: "2023-10-29T19:07:21.640151248Z"
+    description: Soneta products Helm chart for Kubernetes
+    digest: bfd2e182f2baa4a64b50a1df2db6ab55ff8e6e459b6972ef8b4b9a45a64dea3d
+    home: https://enova.pl
+    keywords:
+    - enova
+    - enova365
+    - triva
+    - soneta
+    kubeVersion: '>=1.16.0'
+    maintainers:
+    - name: bartcho
+    - name: chodakq
+    name: soneta
+    sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+    urls:
+    - https://github.com/soneta/helm-charts/releases/download/soneta-0.4.0/soneta-0.4.0.tgz
+    version: 0.4.0
+  - annotations:
       artifacthub.io/changes: "- Added webwcf service \n- Hanling alpine base images for web, web.api and web.wcf "
       artifacthub.io/containsSecurityUpdates: "false"
     apiVersion: v1
