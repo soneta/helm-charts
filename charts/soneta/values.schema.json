@@ -26,6 +26,20 @@
                 "webapi": {
                     "type": "boolean",
                     "default": false
+                },
+                "webwcf": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "webTagpostfix": {
+                    "type": "string",
+                    "default": "-windowsservercore",
+                    "enum": ["-alpine", "-nanoserver", "-windowsservercore"]
+                },
+                "serverTagpostfix": {
+                    "type": "string",
+                    "default": "-windowsservercore",
+                    "enum": ["-alpine", "-nanoserver", "-windowsservercore"]
                 }
             },
             "required": [
@@ -33,6 +47,411 @@
                 "product",
                 "tag"
             ]
+        },
+
+        "replicaCount": {
+            "type": "number",
+            "description": "The number of replicas for the container"
+        },
+
+        "imagePullSecrets": {
+            "type": "array",
+            "description": " Credentials or authentication information for pulling the container image"
+        },
+
+        "nameOverride": {
+            "type": "string",
+            "description": "Override for the name of the container"
+        },
+
+        "fullnameOverride": {
+            "type": "string",
+            "description": "Override for the full name of the container"
+        },
+
+        "service": {
+            "type": "object",
+            "description": "Configuration for the container service",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "server": {
+                    "type": "object",
+                    "description": "Configuration for the server in the service",
+                    "properties": {
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+
+        "ingress": {
+            "type": "object",
+            "description": "Configuration for the container ingress",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "host": {
+                    "type": "string",
+                    "description": "The host address for the ingress"
+                }
+            }
+        },
+
+        "nodeSelector": {
+            "type": "array",
+            "description": "Configuration for selecting specific nodes for the container"
+        },
+
+        "tolerations": {
+            "type": "array",
+            "description": "Configuration for tolerating certain conditions for the container"
+        },
+
+        "affinity": {
+            "type": "object",
+            "description": "Array of affinity rules for the container"
+        },
+
+        "resources": {
+            "type": "object",
+            "description": "Resource allocation configuration for different components",
+            "properties": {
+                "web": {
+                    "type": "object",
+                    "properties": {
+                        "limits": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "requests": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "webapi": {
+                    "type": "object",
+                    "properties": {
+                        "limits": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "requests": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "server": {
+                    "type": "object",
+                    "properties": {
+                        "limits": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "integer"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "requests": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "scheduler": {
+                    "type": "object",
+                    "properties": {
+                        "limits": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "integer"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "requests": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+
+        "volumes": {
+            "type": "object",
+            "description": "Configuration for attaching volumes to the container",
+            "properties": {
+                "all": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
+                },
+                "frontend:": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
+                },
+                "backend": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
+                },
+                "web": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
+                },
+                "webapi": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
+                },
+                "webwcf": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
+                },
+                "server": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
+                },
+                "scheduler": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
+                }
+            }  
+        },
+
+        "envs": {
+            "type": "object",
+            "description": "Environment variable configuration for different components",
+            "properties": {
+                "all": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "frontend:": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "backend": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "web": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "webapi": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "webwcf": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "server": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "scheduler": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     }
 }
