@@ -364,7 +364,7 @@
             "description": "Environment variable configuration for different components",
             "properties": {
                 "all": {
-                    "type": "object",
+                    "type": "array",
                     "properties": {
                         "name": {
                             "type": "string"
