@@ -1,9 +1,11 @@
+{{- if not .Values.image.orchestrator -}}
+{{- $component := (list . "server") -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "soneta.fullname.server" . }}
+  name: {{ include "soneta.fullname" $component }}
   labels:
-{{ include "soneta.labels.server" . | indent 4 }}
+{{ include "soneta.labels" $component | indent 4 }}
 spec:
   type: {{ .Values.service.server.type }}
   {{ if gt (int64 .Values.replicaCount) 1 }}sessionAffinity: ClientIP{{ end }}
@@ -13,4 +15,5 @@ spec:
       protocol: TCP
       name: {{ .Values.service.server.port0Name }}
   selector:
-{{ include "soneta.labels.server" . | indent 4 }}
+{{ include "soneta.labels" $component | indent 4 }}
+{{- end -}}

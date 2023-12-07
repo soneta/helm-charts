@@ -1,9 +1,11 @@
+{{- if not .Values.image.orchestrator -}}
+{{- $component := (list . "web") -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "soneta.fullname.web" . }}
+  name: {{ include "soneta.fullname" $component }}
   labels:
-{{ include "soneta.labels.web" . | indent 4 }}
+{{ include "soneta.labels" $component | indent 4 }}
 {{- if .Values.service.expireDate }}
   annotations:
     expireDate: {{ .Values.service.expireDate | quote }}
@@ -16,4 +18,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-{{ include "soneta.labels.web" . | indent 4 }}
+{{ include "soneta.labels" $component | indent 4 }}
+{{- end -}}

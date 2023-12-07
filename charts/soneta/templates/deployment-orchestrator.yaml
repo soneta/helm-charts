@@ -1,19 +1,19 @@
 {{- if .Values.image.orchestrator -}}
+{{- $component := (list . "orchestrator") -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "soneta.fullname.orchestrator" . }}
+  name: {{ include "soneta.fullname" $component }}
   labels:
-{{ include "soneta.labels.orchestrator" . | indent 4 }}
+{{ include "soneta.labels" $component | indent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-{{ include "soneta.selectors.orchestrator" . | indent 6 }}
+{{ include "soneta.selectors" $component | indent 6 }}
   template:
     metadata:
       labels:
-{{ include "soneta.labels.orchestrator" . | indent 8 }}
+{{ include "soneta.labels" $component | indent 8 }}
     spec:
       containers:
         - name: "{{ .Chart.Name }}-orchestrator-{{ .Values.image.product}}"
