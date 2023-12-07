@@ -3,32 +3,34 @@
 Expand the name of the chart.
 */}}
 {{- define "soneta.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- printf "%s-%s" (default $.Chart.Name $.Values.nameOverride) $component | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "soneta.name.orchestrator" -}}
-{{- printf "%s-%s" (include "soneta.name" . ) "orchestrator" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.name.orchestrator" -}}
+# {{- printf "%s-%s" (include "soneta.name" . ) "orchestrator" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.name.server" -}}
-{{- printf "%s-%s" (include "soneta.name" . ) "server" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.name.server" -}}
+# {{- printf "%s-%s" (include "soneta.name" . ) "server" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.name.web" -}}
-{{- printf "%s-%s" (include "soneta.name" . ) "web" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.name.web" -}}
+# {{- printf "%s-%s" (include "soneta.name" . ) "web" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.name.webapi" -}}
-{{- printf "%s-%s" (include "soneta.name" . ) "webapi" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.name.webapi" -}}
+# {{- printf "%s-%s" (include "soneta.name" . ) "webapi" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.name.webwcf" -}}
-{{- printf "%s-%s" (include "soneta.name" . ) "webwcf" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.name.webwcf" -}}
+# {{- printf "%s-%s" (include "soneta.name" . ) "webwcf" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.name.scheduler" -}}
-{{- printf "%s-%s" (include "soneta.name" . ) "scheduler" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.name.scheduler" -}}
+# {{- printf "%s-%s" (include "soneta.name" . ) "scheduler" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -36,49 +38,48 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "soneta.fullname" -}}
-{{- if .Values.fullnameOverride -}}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- $fullname := "" -}}
+{{- if $.Values.fullnameOverride -}}
+{{- $fullname = $.Values.fullnameOverride -}}
 {{- else -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
-{{/*- if contains $name .Release.Name -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{- else -*/}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{/*- end -*/}}
+{{- $fullname = printf "%s-%s" $.Release.Name (default $.Chart.Name $.Values.nameOverride) -}}
 {{- end -}}
+{{- printf "%s-%s" $fullname $component | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "soneta.fullname.orchestrator" -}}
-{{- printf "%s-%s" (include "soneta.fullname" . ) "orchestrator" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.fullname.orchestrator" -}}
+# {{- printf "%s-%s" (include "soneta.fullname" . ) "orchestrator" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.fullname.web" -}}
-{{- printf "%s-%s" (include "soneta.fullname" . ) "web" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.fullname.web" -}}
+# {{- printf "%s-%s" (include "soneta.fullname" . ) "web" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.fullname.webapi" -}}
-{{- printf "%s-%s" (include "soneta.fullname" . ) "webapi" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.fullname.webapi" -}}
+# {{- printf "%s-%s" (include "soneta.fullname" . ) "webapi" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.fullname.webwcf" -}}
-{{- printf "%s-%s" (include "soneta.fullname" . ) "webwcf" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.fullname.webwcf" -}}
+# {{- printf "%s-%s" (include "soneta.fullname" . ) "webwcf" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.fullname.server" -}}
-{{- printf "%s-%s" (include "soneta.fullname" . ) "server" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.fullname.server" -}}
+# {{- printf "%s-%s" (include "soneta.fullname" . ) "server" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.fullname.scheduler" -}}
-{{- printf "%s-%s" (include "soneta.fullname" . ) "scheduler" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.fullname.scheduler" -}}
+# {{- printf "%s-%s" (include "soneta.fullname" . ) "scheduler" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.fullname.pv" -}}
-{{- printf "%s-%s" (include "soneta.fullname" . ) "pv" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.fullname.pv" -}}
+# {{- printf "%s-%s" (include "soneta.fullname" . ) "pv" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
-{{- define "soneta.fullname.pvc" -}}
-{{- printf "%s-%s" (include "soneta.fullname" . ) "pvc" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+# {{- define "soneta.fullname.pvc" -}}
+# {{- printf "%s-%s" (include "soneta.fullname" . ) "pvc" | trunc 63 | trimSuffix "-" -}}
+# {{- end -}}
 
 {{/*
 Create chart name and version as used by the chart label.
@@ -91,76 +92,81 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "soneta.selectors" -}}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-soneta.product: {{ .Values.image.product }}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+app.kubernetes.io/name: {{ include "soneta.name" . }}
+app.kubernetes.io/instance: {{ $.Release.Name }}
+app.kubernetes.io/managed-by: {{ $.Release.Service }}
+soneta.product: {{ $.Values.image.product }}
 {{- end -}}
 
-{{- define "soneta.selectors.orchestrator" -}}
-app.kubernetes.io/name: {{ include "soneta.name.orchestrator" . }}
-{{ include "soneta.selectors" . }}
-{{- end -}}
+# {{- define "soneta.selectors.orchestrator" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.orchestrator" . }}
+# {{ include "soneta.selectors" . }}
+# {{- end -}}
 
-{{- define "soneta.selectors.server" -}}
-app.kubernetes.io/name: {{ include "soneta.name.server" . }}
-{{ include "soneta.selectors" . }}
-{{- end -}}
+# {{- define "soneta.selectors.server" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.server" . }}
+# {{ include "soneta.selectors" . }}
+# {{- end -}}
 
-{{- define "soneta.selectors.web" -}}
-app.kubernetes.io/name: {{ include "soneta.name.web" . }}
-{{ include "soneta.selectors" . }}
-{{- end -}}
+# {{- define "soneta.selectors.web" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.web" . }}
+# {{ include "soneta.selectors" . }}
+# {{- end -}}
 
-{{- define "soneta.selectors.webapi" -}}
-app.kubernetes.io/name: {{ include "soneta.name.webapi" . }}
-{{ include "soneta.selectors" . }}
-{{- end -}}
+# {{- define "soneta.selectors.webapi" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.webapi" . }}
+# {{ include "soneta.selectors" . }}
+# {{- end -}}
 
-{{- define "soneta.selectors.webwcf" -}}
-app.kubernetes.io/name: {{ include "soneta.name.webwcf" . }}
-{{ include "soneta.selectors" . }}
-{{- end -}}
+# {{- define "soneta.selectors.webwcf" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.webwcf" . }}
+# {{ include "soneta.selectors" . }}
+# {{- end -}}
 
-{{- define "soneta.selectors.scheduler" -}}
-app.kubernetes.io/name: {{ include "soneta.name.scheduler" . }}
-{{ include "soneta.selectors" . }}
-{{- end -}}
+# {{- define "soneta.selectors.scheduler" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.scheduler" . }}
+# {{ include "soneta.selectors" . }}
+# {{- end -}}
 
 {{- define "soneta.labels" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
 {{ include "soneta.selectors" . }}
-helm.sh/chart: {{ include "soneta.chart" . }}
-app.kubernetes.io/version: {{ .Values.image.tag | quote }}
+helm.sh/chart: {{ include "soneta.chart" $ }}
+app.kubernetes.io/version: {{ $.Values.image.tag | quote }}
 {{- end -}}
 
-{{- define "soneta.labels.orchestrator" -}}
-app.kubernetes.io/name: {{ include "soneta.name.orchestrator" . }}
-{{ include "soneta.labels" . }}
-{{- end -}}
+# {{- define "soneta.labels.orchestrator" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.orchestrator" . }}
+# {{ include "soneta.labels" . }}
+# {{- end -}}
 
-{{- define "soneta.labels.server" -}}
-app.kubernetes.io/name: {{ include "soneta.name.server" . }}
-{{ include "soneta.labels" . }}
-{{- end -}}
+# {{- define "soneta.labels.server" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.server" . }}
+# {{ include "soneta.labels" . }}
+# {{- end -}}
 
-{{- define "soneta.labels.web" -}}
-app.kubernetes.io/name: {{ include "soneta.name.web" . }}
-{{ include "soneta.labels" . }}
-{{- end -}}
+# {{- define "soneta.labels.web" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.web" . }}
+# {{ include "soneta.labels" . }}
+# {{- end -}}
 
-{{- define "soneta.labels.webapi" -}}
-app.kubernetes.io/name: {{ include "soneta.name.webapi" . }}
-{{ include "soneta.labels" . }}
-{{- end -}}
+# {{- define "soneta.labels.webapi" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.webapi" . }}
+# {{ include "soneta.labels" . }}
+# {{- end -}}
 
-{{- define "soneta.labels.webwcf" -}}
-app.kubernetes.io/name: {{ include "soneta.name.webwcf" . }}
-{{ include "soneta.labels" . }}
-{{- end -}}
+# {{- define "soneta.labels.webwcf" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.webwcf" . }}
+# {{ include "soneta.labels" . }}
+# {{- end -}}
 
-{{- define "soneta.labels.scheduler" -}}
-app.kubernetes.io/name: {{ include "soneta.name.scheduler" . }}
-{{ include "soneta.labels" . }}
-{{- end -}}
+# {{- define "soneta.labels.scheduler" -}}
+# app.kubernetes.io/name: {{ include "soneta.name.scheduler" . }}
+# {{ include "soneta.labels" . }}
+# {{- end -}}
 
 {{/*
 Other
@@ -223,10 +229,44 @@ Other
 {{- end -}}
 {{- end -}}
 
+{{- define "soneta.side" -}}
+{{- if has . (list "web" "webapi" "webwcf") -}}frontend{{- else -}}backend{{- end -}}
+{{- end -}}
+
+{{- define "soneta.toYaml" -}}
+  {{- if . }}
+{{ toYaml . }}
+  {{- end }}
+{{- end -}}
+
+{{- define "soneta.toYaml.component" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- include "soneta.toYaml" (get $ "all" ) }}
+{{- include "soneta.toYaml" (get $ (include "soneta.side" $component)) }}
+{{- include "soneta.toYaml" (get $ $component) }}
+{{- end -}}
+
+{{- define "soneta.args.component" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- with $.Values.args -}}
+{{- include "soneta.toYaml.component" (list . $component) -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "soneta.args" -}}
   {{- if . }}
 {{ toYaml . }}
   {{- end }}
+{{- end -}}
+
+{{- define "soneta.envs.component" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- with $.Values.envs -}}
+{{- include "soneta.toYaml.component" (list . $component) -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "soneta.envs" -}}
@@ -305,7 +345,8 @@ command: ["dotnet", "webwcf.dll"]
 {{- end -}}
 
 {{- define "soneta.frontend.serverendpoint" -}}
-{{ include "soneta.web.enpointProtocol" . }}$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_HOST):$({{ print ( include "soneta.fullname.server" . ) | upper | replace "-" "_" }}_SERVICE_PORT)
+{{- $server := include "soneta.fullname" (list . "server") | upper | replace "-" "_" -}}
+{{ include "soneta.web.enpointProtocol" . }}$({{ print $server }}_SERVICE_HOST):$({{ print $server }}_SERVICE_PORT)
 {{- end -}}
 
 {{- define "soneta.envs.frontend" -}}
@@ -317,6 +358,28 @@ command: ["dotnet", "webwcf.dll"]
   value: http://+:8080
 {{- end -}}
 
+
+{{- define "soneta.volumes.abstract" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- $template := printf "soneta.%s" (index . 2) -}}
+{{- include $template (get $.Values.volumes "all" ) }}
+{{- include $template (get $.Values.volumes (include "soneta.side" $component)) }}
+{{- include $template (get $.Values.volumes $component) }}
+{{- end -}}
+
+{{- define "soneta.volumeMounts.component" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- include "soneta.volumes.abstract" (list $ $component "volumeMounts") }}
+{{- end -}}
+
+{{- define "soneta.volumes.component" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- include "soneta.volumes.abstract" (list $ $component "volumes") }}
+{{- end -}}
+
 {{- define "soneta.volumes" -}}
 {{- if . }}
 {{- range $i, $val := . }}
@@ -324,31 +387,6 @@ command: ["dotnet", "webwcf.dll"]
 {{- toYaml $val.spec | nindent 2 }}
 {{- end }}
 {{- end }}
-{{- end -}}
-
-{{- define "soneta.volumes.templates" -}}
-- name: templates-volume
-  configMap:
-    name: {{ include "soneta.fullname.orchestrator" . }}
-{{- end -}}
-
-{{- define "soneta.volumeMounts.templates" -}}
-- name: templates-volume
-  mountPath: "/templates"
-{{- end -}}
-
-{{- define "soneta.volumes.listaBazDanych" -}}
-- name: lista-baz-danych-volume
-  configMap:
-    name: {{ include "soneta.fullname.server" . }}
-    items:
-    - key: lista-baz-danych
-      path: "lista-baz-danych.xml"
-{{- end -}}
-
-{{- define "soneta.volumeMounts.listaBazDanych" -}}
-- name: lista-baz-danych-volume
-  mountPath: "/config"
 {{- end -}}
 
 {{- define "soneta.volumeMounts" -}}
@@ -361,6 +399,32 @@ command: ["dotnet", "webwcf.dll"]
 {{- end }}
 {{- end }}
 {{- end -}}
+
+{{- define "soneta.volumes.templates" -}}
+- name: templates-volume
+  configMap:
+    name: {{ include "soneta.fullname" (list . "orchestrator") }}
+{{- end -}}
+
+{{- define "soneta.volumeMounts.templates" -}}
+- name: templates-volume
+  mountPath: "/templates"
+{{- end -}}
+
+{{- define "soneta.volumes.listaBazDanych" -}}
+- name: lista-baz-danych-volume
+  configMap:
+    name: {{ include "soneta.fullname" (list . "server") }}
+    items:
+    - key: lista-baz-danych
+      path: "lista-baz-danych.xml"
+{{- end -}}
+
+{{- define "soneta.volumeMounts.listaBazDanych" -}}
+- name: lista-baz-danych-volume
+  mountPath: "/config"
+{{- end -}}
+
 
 
 {{- define "soneta.ingress.kubeVersion" -}}

@@ -1,9 +1,10 @@
+{{- $component := (list . "web") -}}
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "soneta.fullname.web" . }}-test-connection"
+  name: "{{ include "soneta.fullname" $component }}-test-connection"
   labels:
-{{ include "soneta.labels.web" . | indent 4 }}
+{{ include "soneta.labels" $component | indent 4 }}
   annotations:
     "helm.sh/hook": test-success
 spec:
@@ -11,5 +12,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args:  ['{{ include "soneta.fullname.web" . }}:{{ .Values.service.port }}']
+      args:  ['{{ include "soneta.fullname" $component }}:80']
   restartPolicy: Never

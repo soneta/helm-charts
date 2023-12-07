@@ -1,13 +1,21 @@
 {{- if .Values.image.orchestrator }}
+{{- $component := (list . "orchestrator") -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "soneta.fullname.orchestrator" . }}
+  name: {{ include "soneta.fullname" $component }}
   labels:
-{{ include "soneta.labels.orchestrator" . | indent 4 }}
+{{ include "soneta.labels" $component | indent 4 }}
 data:
-  Web.yaml: |-
+  appsettings.yaml: |-
+    orchestrator:
+      kubernetes:
+        templates:
+          web:
+{{- $web := (list . "web") }}          
+            {{ include "soneta.pod" $web | nindent 12 | trim }}
+  web.yaml: |-
     {{ include "soneta.deployment.web" . | nindent 4 | trim }}
-  Server.yaml: |-
+  server.yaml: |-
     {{ include "soneta.deployment.server" . | nindent 4 | trim }}
 {{- end -}}
