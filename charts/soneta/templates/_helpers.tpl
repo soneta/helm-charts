@@ -187,6 +187,20 @@ Other
 {{- end -}}
 {{- end -}}
 
+{{- define "soneta.image.name" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- $side := include "soneta.side" $component -}}
+{{- if eq $side "frontend" -}}web{{- else -}}server{{- end -}}
+{{- end -}}
+
+{{- define "soneta.image.component" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- $image := include "soneta.image.name" . -}}
+{{ $.Values.image.repository }}soneta/{{ $image }}.{{ $.Values.image.product}}:{{ $.Values.image.tag }}{{ include (printf "soneta.%s.tagPostfix" $image) $ }}
+{{- end -}}
+
 {{- define "soneta.web.image" -}}
 {{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}
 {{- end -}}
@@ -199,6 +213,13 @@ Other
 {{- if include "soneta.isNet" . -}}http://{{- else -}}{{- end -}}
 {{- end -}}
 
+{{- define "soneta.nodeselector.os" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- $image := include "soneta.image.name" . -}}
+{{ if eq (include (printf "soneta.%s.tagPostfix" $image) $) "-alpine" }}linux{{ else }}windows{{ end }}
+{{- end -}}
+
 {{- define "soneta.web.nodeselector.os" -}}
 {{ if eq (include "soneta.web.tagPostfix" .) "-alpine" }}linux{{ else }}windows{{ end }}
 {{- end -}}
@@ -207,8 +228,13 @@ Other
 {{ if eq (include "soneta.server.tagPostfix" .) "-alpine" }}linux{{ else }}windows{{ end }}
 {{- end -}}
 
+# ["tail", "-f", "/dev/null" ]
 {{- define "soneta.orchestrator.command" -}}
-["dotnet", "orchestrator", "kubernetes"]
+["dotnet", "orchestrator.dll", "kubernetes", "start"]
+{{- end -}}
+
+{{- define "soneta.router.command" -}}
+["dotnet", "router.dll"]
 {{- end -}}
 
 {{- define "soneta.server.command" -}}
@@ -264,6 +290,9 @@ Other
 {{- define "soneta.envs.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
+{{- if or (eq $component "server") (eq $component "scheduler") -}}
+{{- include "soneta.envs.dbconfig" $ -}}
+{{- end -}}
 {{- with $.Values.envs -}}
 {{- include "soneta.toYaml.component" (list . $component) -}}
 {{- end -}}
@@ -358,6 +387,8 @@ command: ["dotnet", "webwcf.dll"]
   value: http://+:8080
 {{- end -}}
 
+{{- define "soneta.envs.backend" -}}
+{{- end -}}
 
 {{- define "soneta.volumes.abstract" -}}
 {{- $ := index . 0 -}}
@@ -371,12 +402,30 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.volumeMounts.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
+{{- if eq $component "orchestrator" }}
+- name: appsettings-yaml
+  mountPath: root/.config/Soneta/config
+{{- end -}}
+{{- if or (eq $component "server") (eq $component "scheduler") }}
+{{ include "soneta.volumeMounts.listaBazDanych" $ -}}
+{{- end -}}
 {{- include "soneta.volumes.abstract" (list $ $component "volumeMounts") }}
 {{- end -}}
 
 {{- define "soneta.volumes.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
+{{- if eq $component "orchestrator" }}
+- name: appsettings-yaml
+  configMap:
+    name: {{ include "soneta.fullname" . }}
+    items: 
+    - key: appsettings.yaml
+      path: appsettings.yaml
+{{- end -}}
+{{- if or (eq $component "server") (eq $component "scheduler") }}
+{{ include "soneta.volumes.listaBazDanych" $ -}}
+{{- end -}}
 {{- include "soneta.volumes.abstract" (list $ $component "volumes") }}
 {{- end -}}
 
@@ -398,17 +447,6 @@ command: ["dotnet", "webwcf.dll"]
 {{- end }}
 {{- end }}
 {{- end }}
-{{- end -}}
-
-{{- define "soneta.volumes.templates" -}}
-- name: templates-volume
-  configMap:
-    name: {{ include "soneta.fullname" (list . "orchestrator") }}
-{{- end -}}
-
-{{- define "soneta.volumeMounts.templates" -}}
-- name: templates-volume
-  mountPath: "/templates"
 {{- end -}}
 
 {{- define "soneta.volumes.listaBazDanych" -}}

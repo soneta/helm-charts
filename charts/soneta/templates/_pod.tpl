@@ -14,14 +14,24 @@ metadata:
 spec:
   containers:
     - name: "{{ $.Chart.Name }}-{{ $component }}-{{ $.Values.image.product}}"
-      image: "{{ include (printf "soneta.%s.image" $component) $ }}"
+      image: "{{ include "soneta.image.component" . }}"
       imagePullPolicy: IfNotPresent
       command: {{ include (printf "soneta.%s.command" $component) $ }}
       args:
         {{- include "soneta.args.component" . | indent 8 }}
       env:
-        {{- include (printf "soneta.envs.%s" (include "soneta.side" $component)) $ | nindent 8}}
-        {{- include "soneta.envs.component" . | indent 8 }}
+        {{- include (printf "soneta.envs.%s" (include "soneta.side" $component)) $ | nindent 8 }}
+        {{- include "soneta.envs.component" . |  nindent 8 }}
+{{- if eq $component "orchestrator"}}
+        - name: SONETA_Orchestrator__Kubernetes__Templates__Owner__Uid
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: SONETA_Orchestrator__Kubernetes__Templates__Owner__Name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+{{- end }}
       ports:
         - name: http
           containerPort: 80
@@ -33,7 +43,7 @@ spec:
   volumes:
     {{- include "soneta.volumes.component" . | indent 4 }}
   nodeSelector:
-    kubernetes.io/os: {{ include (printf "soneta.%s.nodeselector.os" $component) $ }}
+    kubernetes.io/os: {{ include "soneta.nodeselector.os" . }}
 {{- with $.Values.nodeSelector }}
     {{- toYaml $ | nindent 4 }}
 {{- end }}
@@ -45,4 +55,7 @@ spec:
   tolerations:
     {{- toYaml . | nindent 4 }}
 {{- end }}
+{{- if eq $component "orchestrator"}}
+  serviceAccountName: {{ include "soneta.fullname" . }}
+{{- end -}}
 {{- end -}}
