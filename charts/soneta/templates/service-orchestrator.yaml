@@ -1,18 +1,4 @@
 {{- if .Values.image.orchestrator -}}
 {{- $component := (list . "orchestrator") -}}
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "soneta.fullname" $component }}
-  labels:
-{{ include "soneta.labels" $component | indent 4 }}
-spec:
-  type: {{ .Values.service.server.type }}
-  ports:
-    - port: {{ .Values.service.server.port0 }}
-      targetPort: {{ .Values.service.server.port0Name }}
-      protocol: TCP
-      name: {{ .Values.service.server.port0Name }}
-  selector:
-{{ include "soneta.labels" $component | indent 4 }}
+{{ include "soneta.service" $component }}
 {{- end -}}

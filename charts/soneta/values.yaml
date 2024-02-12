@@ -52,6 +52,20 @@ resources:
     requests:
       cpu: 10m
       memory: 64Mi
+  orchestrator:
+    limits:
+      cpu: 1
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
+  router:
+    limits:
+      cpu: 50m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
   server:
     limits:
       cpu: 1
