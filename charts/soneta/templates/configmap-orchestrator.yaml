@@ -25,6 +25,8 @@ data:
             enabled: true
           server:
             enabled: true
+          scheduler:
+            enabled: true
         templates:
 {{- $router := (list . "router") }}          
           router:
@@ -56,4 +58,8 @@ data:
               {{ include "soneta.service" $server | indent 14 | trim }}
             pod: |-
               {{ include "soneta.pod" $server | indent 14 | trim }}
+{{- $scheduler := (list . "scheduler") }}          
+          scheduler:
+            pod: |-
+              {{ include "soneta.pod" $scheduler | indent 14 | trim }}
 {{- end -}}
