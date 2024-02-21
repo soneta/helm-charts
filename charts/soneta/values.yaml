@@ -40,12 +40,19 @@ ingress:
 resources:
   web:
     limits:
-      cpu: 500m
-      memory: 1Gi
+      cpu: 100m
+      memory: 256Mi
     requests:
       cpu: 50m
-      memory: 384Mi
+      memory: 128Mi
   webapi:
+    limits:
+      cpu: 50m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
+  webwcf:
     limits:
       cpu: 50m
       memory: 128Mi
@@ -54,7 +61,7 @@ resources:
       memory: 64Mi
   orchestrator:
     limits:
-      cpu: 1
+      cpu: 100m
       memory: 128Mi
     requests:
       cpu: 10m

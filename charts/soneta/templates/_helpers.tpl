@@ -228,13 +228,20 @@ Other
 {{ if eq (include "soneta.server.tagPostfix" .) "-alpine" }}linux{{ else }}windows{{ end }}
 {{- end -}}
 
-# ["tail", "-f", "/dev/null" ]
 {{- define "soneta.orchestrator.command" -}}
 ["dotnet", "orchestrator.dll", "kubernetes", "start"]
 {{- end -}}
 
 {{- define "soneta.router.command" -}}
 ["dotnet", "router.dll"]
+{{- end -}}
+
+{{- define "soneta.webapi.command" -}}
+["dotnet", "webapi.dll"]
+{{- end -}}
+
+{{- define "soneta.webwcf.command" -}}
+["dotnet", "webwcf.dll"]
 {{- end -}}
 
 {{- define "soneta.server.command" -}}

@@ -15,8 +15,10 @@ rules:
   - ""
   resources:
   - pods/log
+  - pods/status
   verbs:
   - get
+  - update
 - apiGroups:
   - ""
   resources:
