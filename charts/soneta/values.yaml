@@ -7,7 +7,7 @@ image:
   product: "standard"
   tag: "2306.2.7-net"
   repository: ""
-  orchestrator: false
+  orchestrator:
   scheduler: false
   webapi: false
   webwcf: false
