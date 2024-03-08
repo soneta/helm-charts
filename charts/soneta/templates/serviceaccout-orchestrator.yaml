@@ -69,5 +69,5 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: {{ $name }}
-    namespace: {{ .Release.Name }}
+    namespace: {{ .Release.Namespace }}
 {{- end -}}

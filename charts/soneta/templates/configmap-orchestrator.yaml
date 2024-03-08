@@ -10,23 +10,7 @@ data:
   appsettings.yaml: |-
     orchestrator:
       kubernetes:
-        composition:
-          frontend:
-            routerendpoint: http://{{ include "soneta.fullname" (list . "router") }}-1:80
-          router:
-            enabled: true
-            overrides:
-              orchestratorendpoint: http://{{ include "soneta.fullname" $component }}:80
-          web:
-            enabled: true
-          webapi:
-            enabled: true
-          webwcf:
-            enabled: true
-          server:
-            enabled: true
-          scheduler:
-            enabled: true
+{{ toYaml .Values.image.orchestrator | indent 8 }}
         templates:
 {{- $router := (list . "router") }}          
           router:
