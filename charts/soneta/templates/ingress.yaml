@@ -1,4 +1,4 @@
-{{- if .Values.ingress.enabled -}}
+{{- if and .Values.ingress.enabled (not .Values.image.orchestrator) -}}
 {{- $fullName := include "soneta.fullname.web" . -}}
 {{- $releaseName := .Release.Name -}}
 {{- if semverCompare "<1.19-0" (include "soneta.ingress.kubeVersion" .)}}
