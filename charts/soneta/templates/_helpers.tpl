@@ -266,6 +266,11 @@ Other
 {{- if has . (list "web" "webapi" "webwcf") -}}frontend{{- else -}}backend{{- end -}}
 {{- end -}}
 
+{{- define "soneta.ingress.path" -}}
+{{- $paths := dict "web" "/" "webapi" "/api/" "webwcf" "/Business/" -}}
+{{- get $paths . -}}
+{{- end -}}
+
 {{- define "soneta.toYaml" -}}
   {{- if . }}
 {{ toYaml . }}
