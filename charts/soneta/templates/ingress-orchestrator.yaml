@@ -1,0 +1,4 @@
+{{- if .Values.image.orchestrator -}}
+{{- $component := (list . "orchestrator") -}}
+{{ include "soneta.ingress" $component }}
+{{- end -}}
