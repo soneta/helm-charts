@@ -25,7 +25,7 @@ data:
             pod: |-
               {{ include "soneta.pod" $web | indent 14 | trim }}
             ingress: |-
-              {{ include "soneta.ingress" $web | indent 14 | trim }}
+              {{ include "soneta.ingress.httppath" $web | indent 14 | trim }}
 {{- $webapi := (list . "webapi") }}          
           webapi:
             service: |-
@@ -33,7 +33,7 @@ data:
             pod: |-
               {{ include "soneta.pod" $webapi | indent 14 | trim }}
             ingress: |-
-              {{ include "soneta.ingress" $webapi | indent 14 | trim }}
+              {{ include "soneta.ingress.httppath" $webapi | indent 14 | trim }}
 {{- $webwcf := (list . "webwcf") }}          
           webwcf:
             service: |-
@@ -41,7 +41,7 @@ data:
             pod: |-
               {{ include "soneta.pod" $webwcf | indent 14 | trim }}
             ingress: |-
-              {{ include "soneta.ingress" $webwcf | indent 14 | trim }}
+              {{ include "soneta.ingress.httppath" $webwcf | indent 14 | trim }}
 {{- $server := (list . "server") }}          
           server:
             service: |-

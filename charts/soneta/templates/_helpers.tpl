@@ -267,7 +267,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.ingress.path" -}}
-{{- $paths := dict "web" "/" "webapi" "/api/" "webwcf" "/Business/" -}}
+{{- $paths := dict "web" "/(.*)" "webapi" "/(api/.*)" "webwcf" "/(Business/.*)" -}}
 {{- get $paths . -}}
 {{- end -}}
 
