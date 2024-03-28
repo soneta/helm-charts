@@ -20,6 +20,28 @@ spec:
       args:
         {{- include "soneta.args.component" . | indent 8 }}
       env:
+        - name: SONETA_TELEMETRY__SERVICENAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['app.kubernetes.io/instance']
+        - name: SONETA_TELEMETRY__SERVICEINSTANCEID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: SONETA_KUBERNETES__NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace 
+        - name: SONETA_KUBERNETES__HELMRELEASE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['app.kubernetes.io/instance']
+        - name: SONETA_KUBERNETES__NODE
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName 
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: k8s.node.name=$(SONETA_KUBERNETES__NODE),k8s.namespace.name=$(SONETA_KUBERNETES__NAMESPACE),helm.release.name=$(SONETA_KUBERNETES__HELMRELEASE)
         {{- include (printf "soneta.envs.%s" (include "soneta.side" $component)) $ | nindent 8 }}
         {{- include "soneta.envs.component" . |  nindent 8 }}
 {{- if eq $component "orchestrator"}}
