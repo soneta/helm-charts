@@ -148,7 +148,7 @@ app.kubernetes.io/name: {{ include "soneta.name.scheduler" . }}
 Other
 */}}
 {{- define "soneta.web.tagPostfix" -}}
-{{- if contains "-net" .Values.image.tag -}}
+{{- if include "soneta.isNet" . -}}
 {{ .Values.image.webTagPostfix | default "-windowsservercore" }}
 {{- else -}}
 {{ .Values.image.webTagPostfix | default "" }}
@@ -156,7 +156,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.server.tagPostfix" -}}
-{{- if contains "-net" .Values.image.tag -}}
+{{- if include "soneta.isNet" . -}}
 {{ .Values.image.serverTagPostfix | default "-windowsservercore" }}
 {{- else -}}
 {{ .Values.image.serverTagPostfix  | default "" }}
@@ -164,7 +164,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.web.enpointProtocol" -}}
-{{- if contains "-net" .Values.image.tag -}}http://{{- else -}}{{- end -}}
+{{- if include "soneta.isNet" . -}}http://{{- else -}}{{- end -}}
 {{- end -}}
 
 {{- define "soneta.web.nodeselector.os" -}}
@@ -176,7 +176,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.server.command" -}}
-{{- if contains "-net" .Values.image.tag -}}["dotnet", "server.dll"]
+{{- if include "soneta.isNet" . -}}["dotnet", "server.dll"]
 {{- else -}}
     {{- if eq .Values.image.product "standard"  }}[ "SonetaServer.exe" ]
         {{- else -}}[ "SonetaServerPremium.exe" ]
@@ -197,7 +197,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.dbconfig" -}}
-{{- if contains "-net" .Values.image.tag -}}
+{{- if include "soneta.isNet" . -}}
 /config/lista-baz-danych.xml
 {{- else -}}
 c:\\config\\lista-baz-danych.xml
@@ -205,20 +205,20 @@ c:\\config\\lista-baz-danych.xml
 {{- end -}}
 
 {{- define "soneta.envs.dbconfig" -}}
-{{- if contains "-net" .Values.image.tag -}}
+{{- if include "soneta.isNet" . -}}
 - name: SONETA_DBCONFIG
   value: {{ include "soneta.dbconfig" . }}
 {{- end -}}
 {{- end -}}
 
 {{- define "soneta.args.dbconfig" -}}
-{{- if not (contains "-net" .Values.image.tag) }}
+{{- if not (include "soneta.isNet" .) }}
 - /dbconfig={{ include "soneta.dbconfig" . }}
 {{- end -}}
 {{- end -}}
 
 {{- define "soneta.server.args" -}}
-  {{- if not (contains "-net" .Values.image.tag) }}
+  {{- if not (include "soneta.isNet" .) }}
 - /console
 - /noscheduler
   {{- end -}} 
@@ -228,7 +228,7 @@ c:\\config\\lista-baz-danych.xml
 {{- end -}}
 
 {{- define "soneta.scheduler.command" -}}
-{{- if contains "-net" .Values.image.tag -}}["dotnet", "scheduler.dll"]
+{{- if include "soneta.isNet" . -}}["dotnet", "scheduler.dll"]
 {{- else -}}
     {{- if eq .Values.image.product "standard"  }}[ "SonetaServer.exe" ]
         {{- else -}}[ "SonetaServerPremium.exe" ]
@@ -237,7 +237,7 @@ c:\\config\\lista-baz-danych.xml
 {{- end -}}
 
 {{- define "soneta.scheduler.args" -}}
-  {{- if contains "-net" .Values.image.tag -}}
+  {{- if include "soneta.isNet" . -}}
 - --mode=Daemon
   {{- else -}}
 - /console
@@ -248,19 +248,19 @@ c:\\config\\lista-baz-danych.xml
 {{- end -}}
 
 {{- define "soneta.web.commands" -}}
-{{- if contains "-net" .Values.image.tag -}}
+{{- if include "soneta.isNet" . -}}
 command: ["dotnet", "web.dll"]
 {{- end -}}
 {{- end -}}
 
 {{- define "soneta.webapi.commands" -}}
-{{- if contains "-net" .Values.image.tag -}}
+{{- if include "soneta.isNet" . -}}
 command: ["dotnet", "webapi.dll"]
 {{- end -}}
 {{- end -}}
 
 {{- define "soneta.webwcf.commands" -}}
-{{- if contains "-net" .Values.image.tag -}}
+{{- if include "soneta.isNet" . -}}
 command: ["dotnet", "webwcf.dll"]
 {{- end -}}
 {{- end -}}
@@ -321,5 +321,19 @@ command: ["dotnet", "webwcf.dll"]
     {{- default .Values.resources.pvc.storageClassName -}}
   {{- else -}}
     azurefile
+  {{- end -}}
+{{- end -}}
+
+{{- define "soneta.isNet" -}}
+  {{- if lt .Values.image.tag "2404.0.0" -}}
+    {{- if contains "-net" .Values.image.tag -}}
+      true
+    {{- else -}}
+    {{- end -}}
+  {{- else -}}
+    {{- if contains "-framework" .Values.image.tag -}}
+    {{- else -}}
+      true
+    {{- end -}}
   {{- end -}}
 {{- end -}}
