@@ -1,5 +1,5 @@
 apiVersion: v1
-version: 0.4.1-alfa.1
+version: 0.4.1
 appVersion: ">=2204.0.0"
 kubeVersion: ">=1.16.0"
 name: soneta
@@ -22,4 +22,4 @@ maintainers:
 annotations:
     artifacthub.io/containsSecurityUpdates: "false"
     artifacthub.io/changes: |
-        - net6 product images support
+        - remove -net postfix from appVersion 2406
