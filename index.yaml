@@ -2,6 +2,31 @@ apiVersion: v1
 entries:
   soneta:
   - annotations:
+      artifacthub.io/changes: '- remove -net postfix from appVersion 2406'
+      artifacthub.io/containsSecurityUpdates: "false"
+    apiVersion: v1
+    appVersion: '>=2204.0.0'
+    created: "2024-04-02T15:44:22.103187478Z"
+    description: Soneta products Helm chart for Kubernetes
+    digest: 4b05da1710c5edf6f6c7214dd3f71c6841bbdb1c65fecbc35caa7d335998e9b3
+    home: https://enova.pl
+    keywords:
+    - enova
+    - enova365
+    - triva
+    - soneta
+    kubeVersion: '>=1.16.0'
+    maintainers:
+    - name: bartcho
+    - name: chodakq
+    name: soneta
+    sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+    urls:
+    - https://github.com/soneta/helm-charts/releases/download/soneta-0.4.1/soneta-0.4.1.tgz
+    version: 0.4.1
+  - annotations:
       artifacthub.io/changes: '- net6 product images support'
       artifacthub.io/containsSecurityUpdates: "false"
     apiVersion: v1
