@@ -416,7 +416,7 @@ command: ["dotnet", "webwcf.dll"]
 {{- $component := index . 1 -}}
 {{- if eq $component "orchestrator" }}
 - name: appsettings-yaml
-  mountPath: root/.config/Soneta/config
+  mountPath: /home/app/.config/Soneta/config
 {{- end -}}
 {{- if or (eq $component "server") (eq $component "scheduler") }}
 {{ include "soneta.volumeMounts.listaBazDanych" $ -}}
