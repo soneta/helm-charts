@@ -2,6 +2,31 @@ apiVersion: v1
 entries:
   soneta:
   - annotations:
+      artifacthub.io/changes: '- envs.all schema fix'
+      artifacthub.io/containsSecurityUpdates: "false"
+    apiVersion: v1
+    appVersion: '>=2204.0.0'
+    created: "2024-04-16T19:06:01.525755941Z"
+    description: Soneta products Helm chart for Kubernetes
+    digest: f640fc0f89c08310b3dfec42d96a09fd44824bd8f70396359837eabc4db88b41
+    home: https://enova.pl
+    keywords:
+    - enova
+    - enova365
+    - triva
+    - soneta
+    kubeVersion: '>=1.16.0'
+    maintainers:
+    - name: bartcho
+    - name: chodakq
+    name: soneta
+    sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+    urls:
+    - https://github.com/soneta/helm-charts/releases/download/soneta-0.4.2/soneta-0.4.2.tgz
+    version: 0.4.2
+  - annotations:
       artifacthub.io/changes: '- remove -net postfix from appVersion 2406'
       artifacthub.io/containsSecurityUpdates: "false"
     apiVersion: v1
@@ -52,7 +77,8 @@ entries:
     - https://github.com/soneta/helm-charts/releases/download/soneta-0.4.0/soneta-0.4.0.tgz
     version: 0.4.0
   - annotations:
-      artifacthub.io/changes: "- Added webwcf service \n- Hanling alpine base images for web, web.api and web.wcf "
+      artifacthub.io/changes: "- Added webwcf service \n- Hanling alpine base images
+        for web, web.api and web.wcf "
       artifacthub.io/containsSecurityUpdates: "false"
     apiVersion: v1
     appVersion: 2204.0.0
@@ -98,4 +124,4 @@ entries:
     urls:
     - https://soneta.github.io/helm-charts/soneta-0.2.0.tgz
     version: 0.2.0
-generated: "2021-11-04T10:05:57.786948+01:00"
+generated: "2024-04-16T19:06:01.525782521Z"
