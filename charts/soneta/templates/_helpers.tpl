@@ -275,7 +275,7 @@ command: ["dotnet", "webwcf.dll"]
 - name: SONETA_FRONTEND__SERVERENDPOINT
   value: {{ include "soneta.frontend.serverendpoint" . }}
 - name: SONETA_URLS
-  value: http://+:80
+  value: http://+:8080
 {{- end -}}
 
 {{- define "soneta.volumes" -}}
