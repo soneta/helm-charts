@@ -2,6 +2,32 @@ apiVersion: v1
 entries:
   soneta:
   - annotations:
+      artifacthub.io/changes: '- web, webapi, webwcf pod ports changed from 80 to
+        8080 - net8 images requirement'
+      artifacthub.io/containsSecurityUpdates: "false"
+    apiVersion: v1
+    appVersion: '>=2204.0.0'
+    created: "2024-06-20T10:16:19.148901698Z"
+    description: Soneta products Helm chart for Kubernetes
+    digest: cc383a419a87904d140f44dcfa31ebfc7493bf42aa81bf01108fb025dd6451ca
+    home: https://enova.pl
+    keywords:
+    - enova
+    - enova365
+    - triva
+    - soneta
+    kubeVersion: '>=1.16.0'
+    maintainers:
+    - name: bartcho
+    - name: chodakq
+    name: soneta
+    sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+    urls:
+    - https://github.com/soneta/helm-charts/releases/download/soneta-0.4.3/soneta-0.4.3.tgz
+    version: 0.4.3
+  - annotations:
       artifacthub.io/changes: '- envs.all schema fix'
       artifacthub.io/containsSecurityUpdates: "false"
     apiVersion: v1
@@ -124,4 +150,4 @@ entries:
     urls:
     - https://soneta.github.io/helm-charts/soneta-0.2.0.tgz
     version: 0.2.0
-generated: "2024-04-16T19:06:01.525782521Z"
+generated: "2024-06-20T10:16:19.148930762Z"
