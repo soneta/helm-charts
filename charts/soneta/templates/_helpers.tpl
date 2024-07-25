@@ -229,7 +229,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.orchestrator.command" -}}
-["dotnet", "orchestrator.dll", "kubernetes", "start"]
+["dotnet", "orchestrator.dll", "kubernetes", "start", "--list-config"]
 {{- end -}}
 
 {{- define "soneta.router.command" -}}
@@ -254,7 +254,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.web.command" -}}
-{{- if contains "-net" .Values.image.tag -}}["dotnet", "web.dll"]
+{{- if include "soneta.isNet" . -}}["dotnet", "web.dll"]
 {{- else -}}
     {{- if eq .Values.image.product "standard"  }}[ "Soneta.Web.Standard.exe" ]
         {{- else -}}[ "Soneta.Web.Premium.exe" ]
@@ -400,6 +400,8 @@ command: ["dotnet", "webwcf.dll"]
 {{- end -}}
 
 {{- define "soneta.envs.backend" -}}
+- name: SONETA_URLS
+  value: http://+:8080
 {{- end -}}
 
 {{- define "soneta.volumes.abstract" -}}

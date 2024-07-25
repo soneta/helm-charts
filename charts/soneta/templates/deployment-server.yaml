@@ -1,3 +1,3 @@
-{{- if not .Values.image.orchestrator -}}
+{{- if not .Values.appsettings.orchestrator.kubernetes -}}
 {{ include "soneta.deployment.server" . }}
 {{- end }}

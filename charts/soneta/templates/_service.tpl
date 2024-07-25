@@ -1,6 +1,6 @@
 {{- define "soneta.service" -}}
 {{- $ := index . 0 -}}
-{{- $component := index . 1 }}
+{{- $component := index . 1 -}}
 apiVersion: v1
 kind: Service
 metadata:

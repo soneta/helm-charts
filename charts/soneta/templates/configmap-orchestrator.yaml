@@ -1,4 +1,4 @@
-{{- if .Values.image.orchestrator }}
+{{- if and .Values.appsettings }}
 {{- $component := (list . "orchestrator") -}}
 apiVersion: v1
 kind: ConfigMap
@@ -8,48 +8,5 @@ metadata:
 {{ include "soneta.labels" $component | indent 4 }}
 data:
   appsettings.yaml: |-
-    orchestrator:
-      kubernetes:
-{{ toYaml .Values.image.orchestrator | indent 8 }}
-        templates:
-{{- $router := (list . "router") }}          
-          router:
-            service: |-
-              {{ include "soneta.service" $router | indent 14 | trim }}
-            pod: |-
-              {{ include "soneta.pod" $router | indent 14 | trim }}
-{{- $web := (list . "web") }}          
-          web:
-            service: |-
-              {{ include "soneta.service" $web | indent 14 | trim }}
-            pod: |-
-              {{ include "soneta.pod" $web | indent 14 | trim }}
-            ingress: |-
-              {{ include "soneta.ingress.httppath" $web | indent 14 | trim }}
-{{- $webapi := (list . "webapi") }}          
-          webapi:
-            service: |-
-              {{ include "soneta.service" $webapi | indent 14 | trim }}
-            pod: |-
-              {{ include "soneta.pod" $webapi | indent 14 | trim }}
-            ingress: |-
-              {{ include "soneta.ingress.httppath" $webapi | indent 14 | trim }}
-{{- $webwcf := (list . "webwcf") }}          
-          webwcf:
-            service: |-
-              {{ include "soneta.service" $webwcf | indent 14 | trim }}
-            pod: |-
-              {{ include "soneta.pod" $webwcf | indent 14 | trim }}
-            ingress: |-
-              {{ include "soneta.ingress.httppath" $webwcf | indent 14 | trim }}
-{{- $server := (list . "server") }}          
-          server:
-            service: |-
-              {{ include "soneta.service" $server | indent 14 | trim }}
-            pod: |-
-              {{ include "soneta.pod" $server | indent 14 | trim }}
-{{- $scheduler := (list . "scheduler") }}          
-          scheduler:
-            pod: |-
-              {{ include "soneta.pod" $scheduler | indent 14 | trim }}
+{{ merge ((include "soneta.templates" . ) | fromYaml) .Values.appsettings | toYaml | indent 4 }}
 {{- end -}}

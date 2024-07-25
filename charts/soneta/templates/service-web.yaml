@@ -1,4 +1,4 @@
-{{- if not .Values.image.orchestrator -}}
+{{- if not .Values.appsettings.orchestrator.kubernetes -}}
 {{- $component := (list . "web") -}}
 apiVersion: v1
 kind: Service

@@ -56,7 +56,7 @@ spec:
 {{- end }}
       ports:
         - name: http
-          containerPort: 80
+          containerPort: 8080
           protocol: TCP
       resources:
         {{- toYaml (get $.Values.resources $component) | nindent 8 }}

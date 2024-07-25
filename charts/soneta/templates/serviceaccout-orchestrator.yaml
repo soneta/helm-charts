@@ -1,4 +1,4 @@
-{{- if .Values.image.orchestrator -}}
+{{- if .Values.appsettings.orchestrator.kubernetes -}}
 {{- $name := include "soneta.fullname" (list . "orchestrator") -}}
 apiVersion: v1
 kind: ServiceAccount
@@ -40,6 +40,7 @@ rules:
   - apps
   resources:
   - deployments
+  - replicasets
   verbs:
   - get
   - list

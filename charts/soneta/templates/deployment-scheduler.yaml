@@ -1,4 +1,4 @@
-{{- if .Values.image.scheduler -}}
+{{- if not .Values.appsettings.orchestrator.kubernetes -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

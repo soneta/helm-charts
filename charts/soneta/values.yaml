@@ -25,14 +25,16 @@ service:
     port3Name: tcp3
     port3: 22003
 
+appsettings: {}
+
 ingress:
   enabled: false
-  releaseAutoAnnotation: 
-    key: nginx.ingress.kubernetes.io/session-cookie-name
-    prefix: ""
-    postfix: "-INGRESSCOOKIE"
-  annotations:
-    nginx.ingress.kubernetes.io/affinity: cookie 
+  # releaseAutoAnnotation: 
+  #   key: nginx.ingress.kubernetes.io/session-cookie-name
+  #   prefix: ""
+  #   postfix: "-INGRESSCOOKIE"
+  # annotations:
+  #   nginx.ingress.kubernetes.io/affinity: cookie 
   class: nginx
   host: enova365.pl
   # tlsSecretName: soneta-ingress-tls
