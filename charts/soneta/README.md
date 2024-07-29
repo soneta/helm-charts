@@ -15,7 +15,7 @@ Poniżej parametry do wykorzystania podczas instalacji z przykładowymi wartośc
 ```
 --set image.repository="" - wybór repozytorium dla obrazu docker'owego
 --set image.tag="2110.2.5" - wybór konkretnego taga określający wersję obrazu docker'owego
---set-file listaBazDanych=enova.xml - wczytanie pliku listy baz danych
+--set-file dblist=enova.xml - wczytanie pliku listy baz danych
 --set ingress.enabled=true - włączenie/wyłączenie zasobu Ingress
 --set resources.afs.enabled=true - włączenie/wyłączenie Azure File Storage
 --set resources.afs.accountName="login" - login do Azure File Storage

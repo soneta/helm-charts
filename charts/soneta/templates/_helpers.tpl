@@ -229,7 +229,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.orchestrator.command" -}}
-["dotnet", "orchestrator.dll", "kubernetes", "start", "--list-config"]
+["dotnet", "orchestrator.dll", "kubernetes", "start"]
 {{- end -}}
 
 {{- define "soneta.router.command" -}}
@@ -318,9 +318,9 @@ Other
 
 {{- define "soneta.dbconfig" -}}
 {{- if include "soneta.isNet" . -}}
-/config/lista-baz-danych.xml
+/config/dblist.xml
 {{- else -}}
-c:\\config\\lista-baz-danych.xml
+c:\\config\\dblist.xml
 {{- end -}}
 {{- end -}}
 
@@ -415,30 +415,26 @@ command: ["dotnet", "webwcf.dll"]
 
 {{- define "soneta.volumeMounts.component" -}}
 {{- $ := index . 0 -}}
-{{- $component := index . 1 -}}
-{{- if eq $component "orchestrator" }}
+{{- $component := index . 1 }}
 - name: appsettings-yaml
   mountPath: /home/app/.config/Soneta/config
-{{- end -}}
 {{- if or (eq $component "server") (eq $component "scheduler") }}
-{{ include "soneta.volumeMounts.listaBazDanych" $ -}}
+{{ include "soneta.volumeMounts.dblist" $ -}}
 {{- end -}}
 {{- include "soneta.volumes.abstract" (list $ $component "volumeMounts") }}
 {{- end -}}
 
 {{- define "soneta.volumes.component" -}}
 {{- $ := index . 0 -}}
-{{- $component := index . 1 -}}
-{{- if eq $component "orchestrator" }}
+{{- $component := index . 1 }}
 - name: appsettings-yaml
   configMap:
-    name: {{ include "soneta.fullname" . }}
+    name: {{ include "soneta.fullname" (list $ "appsettings") }}
     items: 
     - key: appsettings.yaml
       path: appsettings.yaml
-{{- end -}}
 {{- if or (eq $component "server") (eq $component "scheduler") }}
-{{ include "soneta.volumes.listaBazDanych" $ -}}
+{{ include "soneta.volumes.dblist" $ -}}
 {{- end -}}
 {{- include "soneta.volumes.abstract" (list $ $component "volumes") }}
 {{- end -}}
@@ -463,17 +459,17 @@ command: ["dotnet", "webwcf.dll"]
 {{- end }}
 {{- end -}}
 
-{{- define "soneta.volumes.listaBazDanych" -}}
-- name: lista-baz-danych-volume
+{{- define "soneta.volumes.dblist" -}}
+- name: dblist-volume
   configMap:
-    name: {{ include "soneta.fullname" (list . "server") }}
+    name: {{ include "soneta.fullname" (list . "dblist") }}
     items:
-    - key: lista-baz-danych
-      path: "lista-baz-danych.xml"
+    - key: dblist
+      path: "dblist.xml"
 {{- end -}}
 
-{{- define "soneta.volumeMounts.listaBazDanych" -}}
-- name: lista-baz-danych-volume
+{{- define "soneta.volumeMounts.dblist" -}}
+- name: dblist-volume
   mountPath: "/config"
 {{- end -}}
 

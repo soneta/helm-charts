@@ -37,10 +37,10 @@ spec:
           resources:
             {{- toYaml .Values.resources.server | nindent 12 }}
           volumeMounts:
-            {{- include "soneta.volumeMounts.listaBazDanych" . | nindent 12 }}
+            {{- include "soneta.volumeMounts.dblist" . | nindent 12 }}
             {{- include "soneta.volumeMounts.component" $component | indent 12 }}
       volumes:
-        {{- include "soneta.volumes.listaBazDanych" . | nindent 8 }}
+        {{- include "soneta.volumes.dblist" . | nindent 8 }}
         {{- include "soneta.volumes.component" $component | indent 8 }}
       nodeSelector:
         kubernetes.io/os: {{ include "soneta.server.nodeselector.os" . }}

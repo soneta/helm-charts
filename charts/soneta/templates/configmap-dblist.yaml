@@ -1,0 +1,10 @@
+{{- $component := (list . "dblist") -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "soneta.fullname" $component }}
+  labels:
+{{ include "soneta.labels" $component | indent 4 }}
+data:
+  dblist: |-
+    {{ default .Values.dblist .Values.listaBazDanych | required "A valid .Values.dblist entry is required!"  | nindent 4 | trim }}
