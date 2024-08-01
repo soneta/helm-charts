@@ -271,6 +271,11 @@ Other
 {{- get $paths . -}}
 {{- end -}}
 
+{{- define "soneta.ingress-traefik.path" -}}
+{{- $paths := dict "web" "/" "webapi" "/api" "webwcf" "/Business" -}}
+{{- get $paths . -}}
+{{- end -}}
+
 {{- define "soneta.toYaml" -}}
   {{- if . }}
 {{ toYaml . }}

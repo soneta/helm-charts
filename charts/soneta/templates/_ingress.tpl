@@ -9,8 +9,10 @@ metadata:
   labels:
 {{ include "soneta.labels" . | indent 4 }}
   annotations:
+{{- if eq $.Values.ingress.class "nginx" }}
     nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/use-regex: "true"
+{{- end }}
   # {{- with $.Values.ingress.annotations }}
   #   {{- toYaml . | nindent 4 }}
   # {{- end }}
@@ -34,8 +36,14 @@ spec:
 {{- define "soneta.ingress.httppath" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 }}
+{{- if eq $.Values.ingress.class "traefik" -}}
+{{- /* https://doc.traefik.io/traefik/routing/routers/#path-pathprefix-and-pathregexp */ -}}
+path: {{ include "soneta.ingress-traefik.path" $component }}
+pathType: Prefix
+{{- else -}}
 path: {{ include "soneta.ingress.path" $component }}
 pathType: ImplementationSpecific
+{{- end }}
 backend:
   service:
     name: {{ include "soneta.fullname" . }}
