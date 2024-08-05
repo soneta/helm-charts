@@ -1,4 +1,0 @@
-{{- if .Values.appsettings.orchestrator.kubernetes -}}
-{{- $component := (list . "orchestrator") -}}
-{{ include "soneta.pod" $component }}
-{{- end }}

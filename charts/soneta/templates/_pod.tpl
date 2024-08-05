@@ -45,14 +45,8 @@ spec:
         {{- include (printf "soneta.envs.%s" (include "soneta.side" $component)) $ | nindent 8 }}
         {{- include "soneta.envs.component" . |  nindent 8 }}
 {{- if eq $component "orchestrator"}}
-        - name: SONETA_Orchestrator__Kubernetes__Templates__Owner__Uid
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.uid
-        - name: SONETA_Orchestrator__Kubernetes__Templates__Owner__Name
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
+        - name: SONETA_Orchestrator__Kubernetes__Templates__Name
+          value: {{ include "soneta.fullname" (list $ $component ) }}
 {{- end }}
       ports:
         - name: http
