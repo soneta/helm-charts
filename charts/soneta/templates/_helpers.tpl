@@ -505,3 +505,11 @@ command: ["dotnet", "webwcf.dll"]
     {{- end -}}
   {{- end -}}
 {{- end -}}
+
+{{- define "soneta.isOrchestrator" -}}
+  {{- if .Values.appsettings.orchestrator -}}
+    {{- if .Values.appsettings.orchestrator.kubernetes -}}
+      true
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

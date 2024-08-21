@@ -1,4 +1,4 @@
-{{- if .Values.appsettings.orchestrator.kubernetes -}}
+{{- if include "soneta.isOrchestrator" . -}}
 {{- $name := include "soneta.fullname" (list . "orchestrator") -}}
 apiVersion: v1
 kind: ServiceAccount
