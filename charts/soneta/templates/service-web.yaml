@@ -1,4 +1,4 @@
-{{- if not .Values.appsettings.orchestrator.kubernetes -}}
+{{- if not (include "soneta.isOrchestrator" .) -}}
 {{- $component := (list . "web") -}}
 apiVersion: v1
 kind: Service
