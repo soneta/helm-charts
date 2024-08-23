@@ -421,7 +421,7 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.volumeMounts.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 }}
-{{- if and $.Values.appsettings -}}
+{{- if and $.Values.appsettings }}
 - name: appsettings-yaml
   mountPath: /home/app/.config/Soneta/config
 {{- end -}}
@@ -434,7 +434,7 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.volumes.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 }}
-{{- if and $.Values.appsettings -}}
+{{- if and $.Values.appsettings }}
 - name: appsettings-yaml
   configMap:
     name: {{ include "soneta.fullname" (list $ "appsettings") }}
