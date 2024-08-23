@@ -1,22 +1,4 @@
 {{- if not (include "soneta.isOrchestrator" .) -}}
 {{- $component := (list . "web") -}}
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "soneta.fullname" $component }}
-  labels:
-{{ include "soneta.labels" $component | indent 4 }}
-{{- if .Values.service.expireDate }}
-  annotations:
-    expireDate: {{ .Values.service.expireDate | quote }}
-{{- end }}
-spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: 80
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-{{ include "soneta.labels" $component | indent 4 }}
+{{ include "soneta.service" $component }}
 {{- end -}}

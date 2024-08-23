@@ -13,6 +13,7 @@ metadata:
 {{- end }}
 spec:
   type: {{ $.Values.service.type }}
+  {{ if and (eq $component "server") (gt (int64 $.Values.replicaCount) 1) }}sessionAffinity: ClientIP{{ end }}
   ports:
     - port: 80
       targetPort: http
