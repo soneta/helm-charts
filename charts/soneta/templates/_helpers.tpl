@@ -412,7 +412,8 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.volumes.abstract" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
-{{- $template := printf "soneta.%s" (index . 2) -}}
+{{- $type := index . 2 -}}
+{{- $template := printf "soneta.%s" $type -}}
 {{- include $template (get $.Values.volumes "all" ) }}
 {{- include $template (get $.Values.volumes (include "soneta.side" $component)) }}
 {{- include $template (get $.Values.volumes $component) }}
@@ -425,6 +426,16 @@ command: ["dotnet", "webwcf.dll"]
 - name: appsettings-yaml
   mountPath: /home/app/.config/Soneta/config
 {{- end -}}
+{{- if or (eq $component "server") (eq $component "web") (eq $component "webapi") }}
+- mountPath: /home/app/.config/Soneta/Authentication
+  subPath: Authentication
+  name: default-pvc
+{{- end -}}
+{{- if eq $component "web" }}
+- mountPath: /home/app/.aspnet/DataProtection-Keys
+  subPath: DataProtection-Keys
+  name: default-pvc
+{{- end -}}
 {{- if or (eq $component "server") (eq $component "scheduler") }}
 {{ include "soneta.volumeMounts.dblist" $ -}}
 {{- end -}}
@@ -434,6 +445,9 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.volumes.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 }}
+- name: default-pvc
+  persistentVolumeClaim:
+    claimName: {{ include "soneta.fullname" (list $ "pvc") }}
 {{- if and $.Values.appsettings }}
 - name: appsettings-yaml
   configMap:
@@ -451,8 +465,10 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.volumes" -}}
 {{- if . }}
 {{- range $i, $val := . }}
+{{- if $val.name }}
 - name: {{ $val.name }}
 {{- toYaml $val.spec | nindent 2 }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end -}}
@@ -461,8 +477,11 @@ command: ["dotnet", "webwcf.dll"]
 {{- if . }}
 {{- range $i, $val := . }}
 {{- if $val.mountPath }}
-- name: {{ $val.name }}
+- name: {{ $val.name | default "default-pvc" }}
   mountPath: {{ $val.mountPath | quote }}
+{{- if $val.subPath }}
+  subPath: {{ $val.subPath | quote }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
