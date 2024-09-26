@@ -171,6 +171,20 @@ app.kubernetes.io/version: {{ $.Values.image.tag | quote }}
 {{/*
 Other
 */}}
+
+{{- define "soneta.image.postfix" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- $side := ternary "web" "server" (eq (include "soneta.side" $component) "frontend") -}}
+{{- if eq (include "soneta.side" $component) "backend" -}}{{- $side := "server" -}}{{- end -}}
+{{- $postfix := get $.Values.image (printf "%sTagPostfix" $side) -}}
+{{- if include "soneta.isNet" $ -}}
+{{ $postfix | default "-windowsservercore" }}
+{{- else -}}
+{{ $postfix | default "" }}
+{{- end -}}
+{{- end -}}
+
 {{- define "soneta.web.tagPostfix" -}}
 {{- if include "soneta.isNet" . -}}
 {{ .Values.image.webTagPostfix | default "-windowsservercore" }}
@@ -198,15 +212,8 @@ Other
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
 {{- $image := include "soneta.image.name" . -}}
-{{ $.Values.image.repository }}soneta/{{ $image }}.{{ $.Values.image.product}}:{{ $.Values.image.tag }}{{ include (printf "soneta.%s.tagPostfix" $image) $ }}
-{{- end -}}
-
-{{- define "soneta.web.image" -}}
-{{ .Values.image.repository }}soneta/web.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.web.tagPostfix" . }}
-{{- end -}}
-
-{{- define "soneta.server.image" -}}
-{{ .Values.image.repository }}soneta/server.{{ .Values.image.product}}:{{ .Values.image.tag }}{{ include "soneta.server.tagPostfix" . }}
+{{- $postfix := include "soneta.image.postfix" . -}}
+{{ $.Values.image.repository }}soneta/{{ $image }}.{{ $.Values.image.product}}:{{ $.Values.image.tag }}{{ $postfix }}
 {{- end -}}
 
 {{- define "soneta.web.enpointProtocol" -}}
@@ -214,18 +221,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.nodeselector.os" -}}
-{{- $ := index . 0 -}}
-{{- $component := index . 1 -}}
-{{- $image := include "soneta.image.name" . -}}
-{{ if eq (include (printf "soneta.%s.tagPostfix" $image) $) "-alpine" }}linux{{ else }}windows{{ end }}
-{{- end -}}
-
-{{- define "soneta.web.nodeselector.os" -}}
-{{ if eq (include "soneta.web.tagPostfix" .) "-alpine" }}linux{{ else }}windows{{ end }}
-{{- end -}}
-
-{{- define "soneta.server.nodeselector.os" -}}
-{{ if eq (include "soneta.server.tagPostfix" .) "-alpine" }}linux{{ else }}windows{{ end }}
+{{ if eq (include "soneta.image.postfix" .) "-alpine" }}linux{{ else }}windows{{ end }}
 {{- end -}}
 
 {{- define "soneta.orchestrator.command" -}}
@@ -422,17 +418,18 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.volumeMounts.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 }}
+{{- $os := include "soneta.nodeselector.os" . -}}
 {{- if and $.Values.appsettings }}
 - name: appsettings-yaml
-  mountPath: /home/app/.config/Soneta/config
+  mountPath: {{ include "soneta.specialfolder" (list $os "appdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta" "config") }}
 {{- end -}}
 {{- if or (eq $component "server") (eq $component "web") (eq $component "webapi") }}
-- mountPath: /home/app/.config/Soneta/Authentication
+- mountPath: {{ include "soneta.specialfolder" (list $os "appdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta" "Authentication") }}
   subPath: Authentication
   name: default-pvc
 {{- end -}}
 {{- if eq $component "web" }}
-- mountPath: /home/app/.aspnet/DataProtection-Keys
+- mountPath: {{ include "soneta.specialfolder" (list $os "home" ) }}{{ include "soneta.path.combine" (list $os ".aspnet" "DataProtection-Keys") }}
   subPath: DataProtection-Keys
   name: default-pvc
 {{- end -}}
@@ -535,4 +532,38 @@ command: ["dotnet", "webwcf.dll"]
       true
     {{- end -}}
   {{- end -}}
+{{- end -}}
+
+{{- define "soneta.isLinux" -}}
+  {{- if eq (include "soneta.nodeselector.os" .) "linux" -}}
+    true
+  {{- end -}}
+{{- end -}}
+
+
+{{- define "soneta.specialfolder"  -}}
+{{- $os := index . 0 -}}
+{{- $special := index . 1 -}}
+{{- if eq $os "windows" -}}
+{{-   if eq $special "home" -}}
+        c:\\Users\\ContainerUser\\
+{{-   else if eq $special "localappdata" -}}
+        c:\\Users\\ContainerUser\\AppData\\Local\\
+{{-   else if eq $special "appdata" -}}
+        c:\\Users\\ContainerUser\\AppData\\Roaming\\
+{{-   end -}}
+{{- else -}}
+{{-   if eq $special "home" -}}
+        /home/app/
+{{-   else if eq $special "localappdata" -}}
+        /home/app/.local/share/
+{{-   else if eq $special "appdata" -}}
+        /home/app/.config/
+{{-   end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.path.combine" }}
+{{- $separator := ternary "\\\\" "/" (eq (index . 0) "windows") -}}
+{{ join $separator (slice . 1) }}
 {{- end -}}
