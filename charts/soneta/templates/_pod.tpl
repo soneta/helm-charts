@@ -8,7 +8,8 @@ metadata:
 
 {{- define "soneta.pod.spec" -}}
 {{- $ := index . 0 -}}
-{{- $component := index . 1 }}
+{{- $component := index . 1 -}}
+{{- $os := include "soneta.nodeselector.os" . }}
   labels:
 {{ include "soneta.labels" . | indent 4 }}
 spec:
@@ -48,6 +49,10 @@ spec:
         - name: SONETA_Orchestrator__Kubernetes__Templates__Name
           value: {{ include "soneta.fullname" (list $ $component ) }}
 {{- end }}
+{{- if eq $os "linux"}}
+        - name: LOCALAPPDATA 
+          value: {{ include "soneta.specialfolder" (list $os "localappdata") }}
+{{- end }}
       ports:
         - name: http
           containerPort: 8080
@@ -59,7 +64,7 @@ spec:
   volumes:
     {{- include "soneta.volumes.component" . | indent 4 }}
   nodeSelector:
-    kubernetes.io/os: {{ include "soneta.nodeselector.os" . }}
+    kubernetes.io/os: {{ $os }}
 {{- with $.Values.nodeSelector }}
     {{- toYaml $ | nindent 4 }}
 {{- end }}
