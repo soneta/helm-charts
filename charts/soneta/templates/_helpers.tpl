@@ -429,7 +429,7 @@ command: ["dotnet", "webwcf.dll"]
   name: default-pvc
 {{- end -}}
 {{- if eq $component "web" }}
-- mountPath: {{ include "soneta.specialfolder" (list $os "home" ) }}{{ include "soneta.path.combine" (list $os ".aspnet" "DataProtection-Keys") }}
+- mountPath: {{ include "soneta.specialfolder" (list $os "localappdata" ) }}{{ include "soneta.path.combine" (list $os "ASP.NET" "DataProtection-Keys") }}
   subPath: DataProtection-Keys
   name: default-pvc
 {{- end -}}
