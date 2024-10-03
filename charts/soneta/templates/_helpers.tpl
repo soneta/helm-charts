@@ -567,3 +567,35 @@ command: ["dotnet", "webwcf.dll"]
 {{- $separator := ternary "\\\\" "/" (eq (index . 0) "windows") -}}
 {{ join $separator (slice . 1) }}
 {{- end -}}
+
+{{- define "soneta.probes" }}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- $port := 8080 -}}
+{{- if eq (include "soneta.side" $component) "frontend"}}
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: {{ $port }}
+  failureThreshold: 1
+  periodSeconds: 5
+startupProbe:
+  httpGet:
+    path: /healthz
+    port: {{ $port }}
+  failureThreshold: 10
+  periodSeconds: 5
+{{- end }}
+{{- if eq (include "soneta.side" $component) "backend"}}
+livenessProbe:
+  grpc:
+    port: {{ $port }}
+  failureThreshold: 1
+  periodSeconds: 5
+startupProbe:
+  grpc:
+    port: {{ $port }}
+  failureThreshold: 10
+  periodSeconds: 5      
+{{- end }}
+{{- end -}}

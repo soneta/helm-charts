@@ -57,6 +57,7 @@ spec:
         - name: http
           containerPort: 8080
           protocol: TCP
+      {{- include "soneta.probes" . | nindent 6 }}
       resources:
         {{- toYaml (get $.Values.resources $component) | nindent 8 }}
       volumeMounts:
