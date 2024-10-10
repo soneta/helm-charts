@@ -29,6 +29,14 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        - name: SONETA_KUBERNETES__WORKINGUNITID
+        {{- if eq $component "server" }}
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        {{- else }}
+          value: {{ include "soneta.fullname" . }}
+        {{- end }}
         - name: SONETA_KUBERNETES__NAMESPACE
           valueFrom:
             fieldRef:

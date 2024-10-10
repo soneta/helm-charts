@@ -232,6 +232,10 @@ Other
 ["dotnet", "router.dll"]
 {{- end -}}
 
+{{- define "soneta.commhub.command" -}}
+["dotnet", "commhub.dll"]
+{{- end -}}
+
 {{- define "soneta.webapi.command" -}}
 ["dotnet", "webapi.dll"]
 {{- end -}}
@@ -403,6 +407,8 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.envs.backend" -}}
 - name: SONETA_URLS
   value: http://+:8080
+- name: SONETA_COMMHUB__URLS
+  value: http://+:8080
 {{- end -}}
 
 {{- define "soneta.volumes.abstract" -}}
@@ -572,6 +578,7 @@ command: ["dotnet", "webwcf.dll"]
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
 {{- $port := 8080 -}}
+{{- if ne $component "commhub" }}
 {{- if eq (include "soneta.side" $component) "frontend"}}
 livenessProbe:
   httpGet:
@@ -597,5 +604,6 @@ startupProbe:
     port: {{ $port }}
   failureThreshold: 10
   periodSeconds: 5      
+{{- end }}
 {{- end }}
 {{- end -}}

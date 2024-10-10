@@ -74,6 +74,13 @@ resources:
     requests:
       cpu: 50m
       memory: 64Mi
+  commhub:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
   server:
     limits:
       cpu: 1
