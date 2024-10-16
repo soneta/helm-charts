@@ -9,7 +9,8 @@ metadata:
 {{- define "soneta.pod.spec" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
-{{- $os := include "soneta.nodeselector.os" . }}
+{{- $os := include "soneta.nodeselector.os" . -}}
+{{- $side := include "soneta.side" $component }}
   labels:
 {{ include "soneta.labels" . | indent 4 }}
 spec:
@@ -51,11 +52,37 @@ spec:
               fieldPath: spec.nodeName 
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: k8s.node.name=$(SONETA_KUBERNETES__NODE),k8s.namespace.name=$(SONETA_KUBERNETES__NAMESPACE),helm.release.name=$(SONETA_KUBERNETES__HELMRELEASE)
-        {{- include (printf "soneta.envs.%s" (include "soneta.side" $component)) $ | nindent 8 }}
+        {{- include (printf "soneta.envs.%s" $side) $ | nindent 8 }}
         {{- include "soneta.envs.component" . |  nindent 8 }}
-{{- if eq $component "orchestrator"}}
+        - name: SONETA_OrchestratorEndpoint
+          value: http://{{ include "soneta.fullname" (list $ "orchestrator" ) }}:80
+        - name: SONETA_EventhubEndpoint
+          value: http://{{ include "soneta.fullname" (list $ "orchestrator" ) }}:80
+      {{- if and (include "soneta.isOrchestrator" $) (eq $side "frontend") }}
+        - name: SONETA_RouterEndpoint
+          value: {{ include "soneta.routerendpoint" $ }}
+      {{- end }}
+        - name: SONETA_URLS
+          value: http://+:8080
+      {{- if eq $component "orchestrator" }}
         - name: SONETA_Orchestrator__Kubernetes__Templates__Name
           value: {{ include "soneta.fullname" (list $ $component ) }}
+        {{- if include "soneta.isRouterInProcess" $ }}
+        - name: SONETA_{{ "router" | upper }}__URLS
+          value: http://+:8081
+        {{- end }}  
+        {{- if include "soneta.isCommHubInProcess" $ }}
+        - name: SONETA_{{ "commhub" | upper }}__URLS
+          value: tcp://+:8082
+        {{- end }}  
+      {{- end }}
+      {{- if include "soneta.isCommHub" $ }}
+        - name: SONETA_CommHubClient__Enabled
+          value: "true"
+        - name: SONETA_CommHubClient__Endpoints__0
+          value: {{ include "soneta.commhubendpoint" $ }}
+      {{- end }}
+{{- if eq $component "orchestrator"}}
 {{- end }}
 {{- if eq $os "linux"}}
         - name: LOCALAPPDATA 

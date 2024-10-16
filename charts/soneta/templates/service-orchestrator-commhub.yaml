@@ -1,0 +1,4 @@
+{{- if include "soneta.isCommHubInProcess" . -}}
+{{- $component := (list . "orchestrator" "commhub" 8082) -}}
+{{ include "soneta.service" $component }}
+{{- end -}}
