@@ -3,11 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ include "soneta.fullname" (list . "pvc") }}
 spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 10Mi
+  {{- toYaml .Values.resources.pvc.spec | nindent 2 }}
+
 {{- if .Values.pvcs }}
   {{- $top := . -}}
   {{- range $index, $pvc := .Values.pvcs }}

@@ -39,6 +39,14 @@ ingress:
   # tlsSecretName: soneta-ingress-tls
 
 resources:
+  pvc:
+    spec:
+      accessModes:
+        - ReadWriteMany
+      resources:
+        requests:
+          storage: 10Mi
+      # storageClassName: azurefile
   web:
     limits:
       cpu: 200m

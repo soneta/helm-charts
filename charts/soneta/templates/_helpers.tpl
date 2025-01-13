@@ -306,27 +306,23 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.volumeMounts.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 }}
-{{- $os := include "soneta.nodeselector.os" . -}}
+{{- $os := include "soneta.nodeselector.os" . }}
+- mountPath: {{ include "soneta.specialfolder" (list $os "localappdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta") }}
+  subPath: localappdata
+  name: default-pvc
+- mountPath: {{ include "soneta.specialfolder" (list $os "appdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta") }}
+  subPath: appdata
+  name: default-pvc
 {{- if and $.Values.appsettings }}
 - name: appsettings-yaml
   mountPath: {{ include "soneta.specialfolder" (list $os "appdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta" "config") }}
-{{- end -}}
-{{- if or (eq $component "server") (eq $component "web") (eq $component "webapi") }}
-- mountPath: {{ include "soneta.specialfolder" (list $os "appdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta" "Authentication") }}
-  subPath: Authentication
-  name: default-pvc
-{{- end -}}
-{{- if eq $component "orchestrator" }}
-- mountPath: {{ include "soneta.specialfolder" (list $os "localappdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta" "orchestrator") }}
-  subPath: orchestrator
-  name: default-pvc
 {{- end -}}
 {{- if eq $component "web" }}
 - mountPath: {{ include "soneta.specialfolder" (list $os "localappdata" ) }}{{ include "soneta.path.combine" (list $os "ASP.NET" "DataProtection-Keys") }}
   subPath: DataProtection-Keys
   name: default-pvc
 {{- end -}}
-{{- if or (eq $component "server") (eq $component "scheduler") }}
+{{- if or (or (eq $component "server") (eq $component "scheduler")) (eq $component "orchestrator") }}
 {{ include "soneta.volumeMounts.dblist" $ -}}
 {{- end -}}
 {{- include "soneta.volumes.abstract" (list $ $component "volumeMounts") }}
@@ -346,7 +342,7 @@ command: ["dotnet", "webwcf.dll"]
     - key: appsettings.yaml
       path: appsettings.yaml
 {{- end -}}
-{{- if or (eq $component "server") (eq $component "scheduler") }}
+{{- if or (or (eq $component "server") (eq $component "scheduler")) (eq $component "orchestrator") }}
 {{ include "soneta.volumes.dblist" $ -}}
 {{- end -}}
 {{- include "soneta.volumes.abstract" (list $ $component "volumes") }}
