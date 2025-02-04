@@ -10,17 +10,14 @@ orchestrator:
       web:
         service: {{ include "soneta.service" $web | toYaml }}
         pod: {{ include "soneta.pod" $web | toYaml }}
-        ingress: {{ include "soneta.ingress.httppath" $web | toYaml }}
 {{- $webapi := (list . "webapi") }}          
       webapi:
         service: {{ include "soneta.service" $webapi | toYaml }}
         pod: {{ include "soneta.pod" $webapi | toYaml }}
-        ingress: {{ include "soneta.ingress.httppath" $webapi | toYaml }}
 {{- $webwcf := (list . "webwcf") }}          
       webwcf:
         service: {{ include "soneta.service" $webwcf | toYaml }}
         pod: {{ include "soneta.pod" $webwcf | toYaml }}
-        ingress: {{ include "soneta.ingress.httppath" $webwcf | toYaml }}
 {{- $server := (list . "server") }}          
       server:
         service: {{ include "soneta.service" $server | toYaml }}

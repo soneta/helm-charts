@@ -29,6 +29,11 @@ spec:
 {{- end }}
   rules:
     - host: {{ $.Release.Name }}.{{ $.Values.ingress.host }}
+      http:
+        paths:
+        {{- include "soneta.ingress.httppath" (list $ "web") | nindent 8 }}
+        {{- include "soneta.ingress.httppath" (list $ "webapi") | nindent 8 }}
+        {{- include "soneta.ingress.httppath" (list $ "webwcf") | nindent 8 }}
 {{- end }}
 {{- end -}}
 
@@ -38,15 +43,15 @@ spec:
 {{- $component := index . 1 }}
 {{- if eq $.Values.ingress.class "traefik" -}}
 {{- /* https://doc.traefik.io/traefik/routing/routers/#path-pathprefix-and-pathregexp */ -}}
-path: {{ include "soneta.ingress-traefik.path" $component }}
-pathType: Prefix
+- path: {{ include "soneta.ingress-traefik.path" $component }}
+  pathType: Prefix
 {{- else -}}
-path: {{ include "soneta.ingress.path" $component }}
-pathType: ImplementationSpecific
+- path: {{ include "soneta.ingress.path" $component }}
+  pathType: ImplementationSpecific
 {{- end }}
-backend:
-  service:
-    name: {{ include "soneta.fullname" . }}
-    port:
-      number: 80
+  backend:
+    service:
+      name: {{ include "soneta.fullname" . }}
+      port:
+        number: 80
 {{- end -}}

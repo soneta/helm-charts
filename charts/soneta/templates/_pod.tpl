@@ -50,6 +50,10 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName 
+        - name: SONETA_KUBERNETES__VERSION
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['app.kubernetes.io/version']
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: k8s.node.name=$(SONETA_KUBERNETES__NODE),k8s.namespace.name=$(SONETA_KUBERNETES__NAMESPACE),helm.release.name=$(SONETA_KUBERNETES__HELMRELEASE)
         {{- include (printf "soneta.envs.%s" $side) $ | nindent 8 }}
