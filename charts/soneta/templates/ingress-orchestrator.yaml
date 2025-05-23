@@ -1,4 +1,0 @@
-{{- if include "soneta.isOrchestrator" . -}}
-{{- $component := (list . "orchestrator") -}}
-{{ include "soneta.ingress" $component }}
-{{- end -}}

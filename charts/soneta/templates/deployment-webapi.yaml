@@ -1,4 +1,4 @@
-{{- if .Values.image.webapi -}}
+{{- if and (not (include "soneta.isAdminMode" .)) (.Values.image.webapi) (not (include "soneta.isOrchestrator" .)) -}}
 {{- $component := (list . "webapi") -}}
 {{ include "soneta.deployment" $component }}
 {{- end }}

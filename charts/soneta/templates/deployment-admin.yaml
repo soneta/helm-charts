@@ -1,0 +1,4 @@
+{{- if (include "soneta.isAdminMode" .) -}}
+{{- $component := (list . "admin") -}}
+{{ include "soneta.deployment" $component }}
+{{- end }}

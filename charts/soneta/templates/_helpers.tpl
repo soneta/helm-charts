@@ -132,6 +132,12 @@ Other
 ["dotnet", "webwcf.dll"]
 {{- end -}}
 
+{{- define "soneta.admin.command" -}}
+{{- if include "soneta.isLinux" (list . "admin") -}}["tail", "-f", "/dev/null"]
+{{- else -}}["cmd.exe", "/c", "timeout /t -1"]
+{{- end -}}
+{{- end -}}
+
 {{- define "soneta.server.command" -}}
 {{- if include "soneta.isNet" . -}}["dotnet", "server.dll"]
 {{- else -}}
@@ -195,7 +201,7 @@ Other
 {{- define "soneta.envs.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
-{{- if or (eq $component "server") (eq $component "scheduler") -}}
+{{- if (has $component (list "server" "scheduler" "admin")) -}}
 {{- include "soneta.envs.dbconfig" $ -}}
 {{- end -}}
 {{- with $.Values.envs -}}
@@ -322,7 +328,7 @@ command: ["dotnet", "webwcf.dll"]
   subPath: DataProtection-Keys
   name: default-pvc
 {{- end -}}
-{{- if or (or (eq $component "server") (eq $component "scheduler")) (eq $component "orchestrator") }}
+{{- if (has $component (list "server" "scheduler" "orchestrator" "admin")) }}
 {{ include "soneta.volumeMounts.dblist" $ -}}
 {{- end -}}
 {{- include "soneta.volumes.abstract" (list $ $component "volumeMounts") }}
@@ -342,7 +348,7 @@ command: ["dotnet", "webwcf.dll"]
     - key: appsettings.yaml
       path: appsettings.yaml
 {{- end -}}
-{{- if or (or (eq $component "server") (eq $component "scheduler")) (eq $component "orchestrator") }}
+{{- if (has $component (list "server" "scheduler" "orchestrator" "admin")) }}
 {{ include "soneta.volumes.dblist" $ -}}
 {{- end -}}
 {{- include "soneta.volumes.abstract" (list $ $component "volumes") }}
@@ -413,6 +419,12 @@ command: ["dotnet", "webwcf.dll"]
       true
     {{- end -}}
   {{- end -}}
+{{- end -}}
+
+{{- define "soneta.isAdminMode" -}}
+{{- if (.Values.adminMode) -}}
+  true
+{{- end -}}
 {{- end -}}
 
 {{- define "soneta.isOrchestrator" -}}
@@ -507,7 +519,7 @@ http://{{ include "soneta.fullname" $args }}:80
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
 {{- $port := 8080 -}}
-{{- if ne $component "commhub" }}
+{{- if not (has $component (list "commhub" "admin")) }}
 {{- if eq (include "soneta.side" $component) "frontend"}}
 livenessProbe:
   httpGet:

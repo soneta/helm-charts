@@ -2,6 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+adminMode: false
 replicaCount: 1
 image:
   product: "standard"
@@ -102,6 +103,13 @@ resources:
       cpu: 250m
       memory: 384Mi
   scheduler:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 384Mi
+  admin:
     limits:
       cpu: 1
       memory: 1Gi

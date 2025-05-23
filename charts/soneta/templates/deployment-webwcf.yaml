@@ -1,4 +1,4 @@
-{{- if .Values.image.webwcf -}}
+{{- if and (not (include "soneta.isAdminMode" .)) (.Values.image.webwcf) (not (include "soneta.isOrchestrator" .)) -}}
 {{- $component := (list . "webwcf") -}}
 {{ include "soneta.deployment" $component }}
 {{- end }}

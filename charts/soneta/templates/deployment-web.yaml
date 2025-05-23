@@ -1,4 +1,4 @@
-{{- if not (include "soneta.isOrchestrator" .) -}}
+{{- if and (not (include "soneta.isAdminMode" .)) (not (include "soneta.isOrchestrator" .)) -}}
 {{- $component := (list . "web") -}}
 {{ include "soneta.deployment" $component }}
 {{- end }}

@@ -1,4 +1,4 @@
-{{- if and (.Values.image.scheduler) (not (include "soneta.isOrchestrator" .)) -}}
+{{- if and (not (include "soneta.isAdminMode" .)) (.Values.image.scheduler) (not (include "soneta.isOrchestrator" .)) -}}
 {{- $component := (list . "scheduler") -}}
 {{ include "soneta.deployment" $component }}
 {{- end }}
