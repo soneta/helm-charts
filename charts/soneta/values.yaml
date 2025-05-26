@@ -24,7 +24,12 @@ service:
     port3Name: tcp3
     port3: 22003
 
-appsettings: {}
+appsettings: 
+  CommHub:
+    GarnetServer:
+      MemorySize: "16m"
+      IndexSize: "16m"
+      PageSize: "4m"
 
 ingress:
   enabled: false
