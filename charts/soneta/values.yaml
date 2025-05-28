@@ -6,7 +6,7 @@ adminMode: false
 replicaCount: 1
 image:
   product: "standard"
-  tag: "2306.2.7-net"
+  tag: "2504.2.4"
   repository: ""
   scheduler: false
   webapi: false
@@ -20,10 +20,6 @@ service:
   type: NodePort
   server:
     type: ClusterIP
-    port0Name: tcp0
-    port0: 22000
-    port3Name: tcp3
-    port3: 22003
 
 appsettings: 
   CommHub:

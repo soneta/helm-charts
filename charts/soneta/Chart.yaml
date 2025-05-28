@@ -1,7 +1,7 @@
-apiVersion: v1
-version: 0.4.3
-appVersion: ">=2204.0.0"
-kubeVersion: ">=1.16.0"
+apiVersion: v2
+version: 0.5.0-alpha.1
+appVersion: ">=2504.0.0"
+kubeVersion: ">=1.19.0"
 name: soneta
 description: Soneta products Helm chart for Kubernetes
 keywords: 
@@ -22,4 +22,19 @@ maintainers:
 annotations:
     artifacthub.io/containsSecurityUpdates: "false"
     artifacthub.io/changes: |
-        - web, webapi, webwcf pod ports changed from 80 to 8080 - net8 images requirement
+        - Admin mode for orchestrator Kubernetes (LABIT)
+        - Default values for GarnetServer
+        - Improved ingress update and support for multiple component versions
+        - Parameters for default PVC in Helm package
+        - Router and Commhub as InProcess
+        - Migration from ReplicaSet to Deployment
+        - Adopt implementation for KubernetesHost
+        - CommHub in K8s orchestrator
+        - HealthCheck in Helm
+        - Fix for DataProtection-Keys directory handling in Helm package
+        - Log files support for servers and dbmgr on Kubernetes/Linux PODs
+        - Linux/Windows path support in Helm package
+        - Default Persistent Volume Claim for installation
+        - Orchestrator as ReplicaSet
+        - Ingress support
+        - Enabled Scheduler, WebApi, WebWcf
