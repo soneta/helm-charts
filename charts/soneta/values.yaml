@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./values.schema.json
 # Default values for soneta.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -7,6 +8,8 @@ replicaCount: 1
 image:
   product: "standard"
   tag: "2504.2.4"
+  webTagPostfix: -alpine
+  serverTagPostfix: -alpine
   repository: ""
   scheduler: false
   webapi: false
@@ -48,7 +51,6 @@ resources:
       resources:
         requests:
           storage: 10Mi
-      # storageClassName: azurefile
   web:
     limits:
       cpu: 200m
@@ -128,6 +130,7 @@ volumes:
   backend: []
   server: []
   scheduler: []
+  admin: []
 
 envs:
   frontend: []
@@ -137,6 +140,7 @@ envs:
   backend: []
   server: []
   scheduler: []
+  admin: []
 
 args:
   frontend: []
@@ -146,3 +150,4 @@ args:
   backend: []
   server: []
   scheduler: []
+  admin: []
