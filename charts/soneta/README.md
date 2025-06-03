@@ -3,10 +3,10 @@
 Funkcjonalność zawarta w tym repozytorium jest w fazie ***beta*** i może być przedmiotem zmian. Funkcjonalność ***beta*** nie podlega gwarancji.
 
 ## Użycie
-Instalacja aplikacji z minimalną parametryzacją (zostaną zastosowane domyślnie parametry):
-- **enova** to nazwa release'a (dowolna nazwa identyfikująca instację aplikacji)
-- **soneta/soneta** to odpowiednio *repozytorium/nazwa_chart’a*
-- dodatkowo należy wskazać zawartość listy baz danych, z ktorymi będzie wpółpracować dana instancja aplikacji.
+Instalacja aplikacji z minimalną parametryzacją (zostaną zastosowane domyślne parametry):
+- **sample** to nazwa release'a (dowolna nazwa identyfikująca instancję aplikacji)
+- **soneta/soneta** to odpowiednio *repozytorium/nazwa chartu*
+- dodatkowo należy wskazać zawartość listy baz danych, z którymi będzie współpracować dana instancja aplikacji.
 
 
 ```console
@@ -32,7 +32,7 @@ Aplikacja może pracować w dwóch trybach:
 - **orkiestrowany** - aplikacja jest uruchamiana w trybie orkiestracji pod warunkiem obecności sekcji `appsettings.kubernetes.orchestrator`. Uruchamiany jest pod orchestratora, który na podstawie kompozycji w wyżej wymienionej sekcji powołuje odpowiednie komponenty aplikacji. W trybie tym możliwa jest obsługa wielu baz danych na instancję aplikacji.
 
 ## Tryb administracyjny
-Poza trybami pracy aplikacja może być uruchomiona w trybie administracyjnym, który jest włączany jest poprzez ustawienie wartości `--set adminMode=true`. W trybie uruchamiany jest jedynie pod administracyjny, którym można wykonywać operacje zarządzające aplikacją np za pomocą `dotnet dbmgr.dll`, dostępne są odpowiednie zasoby backend'owe (*appdata, localappdata, lista baz danych ...*).
+Poza trybami pracy aplikacja może być uruchomiona w trybie administracyjnym, który jest włączany poprzez ustawienie wartości `--set adminMode=true`. W tym trybie uruchamiany jest jedynie pod administracyjny, w którym można wykonywać operacje zarządzające aplikacją, np. za pomocą `dotnet dbmgr.dll`. Dostępne są odpowiednie zasoby backendowe (*appdata, localappdata, lista baz danych ...*).
 ```console
 helm upgrade sample soneta/soneta -f values.yaml --install --set adminMode=true
 ```
@@ -136,7 +136,7 @@ secrets:
 
 volumes:
   all:
-  # Podstawienie wolumenu dla wszystkich komponentów aplikacji, który będzie montowany do katalogu /home/app/.config/Soneta/Authentication i będzie zawierał plik klucze dla tokenów aplikacji
+  # Podstawienie wolumenu dla wszystkich komponentów aplikacji, który będzie montowany w katalogu /home/app/.config/Soneta/Authentication i będzie zawierał plik z kluczami dla tokenów aplikacji
   - name: authentication
     mountPath: /home/app/.config/Soneta/Authentication
     subPath: tokenkey
@@ -152,7 +152,7 @@ volumes:
 
 ```yaml
 # values.yaml
-# Przykład konfiguracji sekcji ingress umożliwiającej wystawienie aplikacji na zewnątrz klastra z obsługą TLS oraz dodatkowymi adnotacjami dla kontrolera nginx.
+# Przykład konfiguracji sekcji ingress, umożliwiającej wystawienie aplikacji na zewnątrz klastra z obsługą TLS oraz dodatkowymi adnotacjami dla kontrolera nginx.
 ingress:
   enabled: true
   host: twoja.domena.pl
