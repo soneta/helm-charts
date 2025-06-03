@@ -3,116 +3,163 @@
 Funkcjonalność zawarta w tym repozytorium jest w fazie ***beta*** i może być przedmiotem zmian. Funkcjonalność ***beta*** nie podlega gwarancji.
 
 ## Użycie
-Instalacja aplikacji: „enova” to jej nazwa, „soneta/soneta” to odpowiednio repozytorium/nazwa_chart’a
+Instalacja aplikacji z minimalną parametryzacją (zostaną zastosowane domyślnie parametry):
+- **enova** to nazwa release'a (dowolna nazwa identyfikująca instację aplikacji)
+- **soneta/soneta** to odpowiednio *repozytorium/nazwa_chart’a*
+- dodatkowo należy wskazać zawartość listy baz danych, z ktorymi będzie wpółpracować dana instancja aplikacji.
+
 
 ```console
-helm install enova soneta/soneta
+helm upgrade sample soneta/soneta -f values.yaml --install
+```
+
+gdzie zawartość pliku values.yaml to np.:
+```yaml
+dblist: |-
+  <DatabaseCollection>
+    <MsSqlDatabase>
+      <Name>sample</Name>
+      <Active>true</Active>
+      <Server>server.sample.domain</Server>
+      <User>db_user</User>
+      <Password>************</Password>
+    </MsSqlDatabase>
+  </DatabaseCollection>
+```
+## Tryby pracy
+Aplikacja może pracować w dwóch trybach:
+- **prosty (domyślny)** - aplikacja jest uruchamiana w trybie prostym, urchamiany jest pod web'a i serwera biznesowego oraz opcjonalnie webapi, webwcf, oraz scheduler'a. W trybie tym istnieje możliwość obsługi tylko jednej bazy danych na instancję aplikacji.
+- **orkiestrowany** - aplikacja jest uruchamiana w trybie orkiestracji pod warunkiem obecności sekcji `appsettings.kubernetes.orchestrator`. Uruchamiany jest pod orchestratora, który na podstawie kompozycji w wyżej wymienionej sekcji powołuje odpowiednie komponenty aplikacji. W trybie tym możliwa jest obsługa wielu baz danych na instancję aplikacji.
+
+## Tryb administracyjny
+Poza trybami pracy aplikacja może być uruchomiona w trybie administracyjnym, który jest włączany jest poprzez ustawienie wartości `--set adminMode=true`. W trybie uruchamiany jest jedynie pod administracyjny, którym można wykonywać operacje zarządzające aplikacją np za pomocą `dotnet dbmgr.dll`, dostępne są odpowiednie zasoby backend'owe (*appdata, localappdata, lista baz danych ...*).
+```console
+helm upgrade sample soneta/soneta -f values.yaml --install --set adminMode=true
 ```
 ## Parametryzacja
-### Parametyzacja poprzez *--set*
-Podczas instalacji poleceniem *helm install* lub aktualizacji *helm upgrade* można parametryzować aplikacje za pomocą *--set*. \
-Poniżej parametry do wykorzystania podczas instalacji z przykładowymi wartościami:
+Aplikacja jest parametryzowana poprzez plik/pliki z opcją -f, wartości w plikach `values.yaml` są łączone w jedną całość.
+```console
+helm upgrade sample soneta/soneta -f values1.yaml -f values2.yaml ... --install
 ```
---set image.repository="" - wybór repozytorium dla obrazu docker'owego
---set image.tag="2110.2.5" - wybór konkretnego taga określający wersję obrazu docker'owego
---set-file dblist=enova.xml - wczytanie pliku listy baz danych
---set ingress.enabled=true - włączenie/wyłączenie zasobu Ingress
---set resources.afs.enabled=true - włączenie/wyłączenie Azure File Storage
---set resources.afs.accountName="login" - login do Azure File Storage
---set resources.afs.accountKey="klucz" - klucz do Azure File Storage
---set resources.afs.shareName="enova"  - nazwa File Share
---set envs.server[0].name="AzureFileShare.DefaultFolder" - nazwa montowanego zasobu
---set envs.server[0].value="Z:" - litera montowanego dysku
---set envs.web[0].name="WEBSettings.adminPwd" - nazwa potrzebna do nadania hasła administratora do serwera web
---set envs.web[0].value="test" - hasło do serwera web
---set image.scheduler=true - włączenie/wyłączenie harmonogramu zadań
---set resources.web.requests.cpu=100m - ustawienie requestu 100m na serwerze web
---set resources.server.limits.memory=3Gi - ustawienie limitu 3Gi na serwerze biznesowym
---set resources.web.limits.memory=2Gi - ustawienie limitu 2Gi na serwerze web
---set image.webTagPostfix="-core" - włączenie serwera web w wersji .netcore
-```
-### Parametryzacja plikiem *values.yaml*
-Analogicznie te same parametry moga być umieszczone w pliku values. Plik jest przekazywany do *helm install* lub *helm upgrade* z flagą _–f_ lub _-values_:
-```
-envs:
-  server:
-  - name: AzureFileShare.DefaultFolder
-    value: 'Z:'
-  web: 
-  - name: ProductSettings__Settings__AdminPwd
-    value: "test"
+Wartości można przekazywać również poprzez opcję `--set` jednak poza włączaniem trybu administracyjnego nie jest to zalecane, ponieważ staje się nieczytelne i trudne w utrzymaniu, a dodatkowo pliki mogą być wersjonowane w repozytorium i być przedmiotem audytu.
+
+## Przykłady parametryzacji
+
+- **Wskazanie wersji obrazu:**
+
+```yaml
+# values.yaml
 image:
-  repository: ""
-  tag: 2110.2.5
-  webapi: false
-  scheduler: false
-  webTagPostfix: "-core"
+  tag: "2504.2.5"
+dblist: |-
+  <DatabaseCollection>...</DatabaseCollection>
+```
+
+- **Tryb orkiestratora z wieloma bazami danych:**
+
+```yaml
+# values.yaml
+appsettings:
+  orchestrator:
+    kubernetes:
+      composition:
+        web:
+          enabled: true
+        server:
+          enabled: true
+dblist: |-
+  <DatabaseCollection>
+    <MsSqlDatabase>
+      <Name>db1</Name>
+      ...
+    </MsSqlDatabase>
+    <MsSqlDatabase>
+      <Name>db2</Name>
+      ...
+    </MsSqlDatabase>
+  </DatabaseCollection>
+```
+
+- **Nadpisanie zasobów dla serwera:**
+
+```yaml
+# values.yaml
+resources:
+  server:
+    limits:
+      cpu: 2
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 500Mi
+```
+
+- **Ustawienie zmiennych środowiskowych:**
+
+```yaml
+# values.yaml
+envs:
+  # dla wszystkich komponentów
+  all:
+    # DOTNET_USE_POLLING_FILE_WATCHER - Ta zmienna środowiskowa, gdy ustawiona na "1", wymusza na platformie .NET używanie mechanizmu aktywnego sprawdzania zmian w plikach (polling) zamiast domyślnego mechanizmu powiadomień systemowych. Może to być przydatne w środowiskach, gdzie powiadomienia o zmianach plików nie działają poprawnie, np. w kontenerach lub na systemach plików sieciowych.
+    - name: DOTNET_USE_POLLING_FILE_WATCHER
+      value: "1"
+    # TZ - Ta zmienna środowiskowa określa strefę czasową, w której działa aplikacja. Ustawienie jej na "Europe/Warsaw" powoduje, że wszystkie operacje związane z czasem będą wykonywane zgodnie z czasem lokalnym dla Polski.
+    - name: TZ
+      value: Europe/Warsaw
+```
+- **Ustawienie paramatrów domyślnego persistent volume claim:**
+
+```yaml
+resources:
+  pvc:
+    spec:
+      resources:
+        requests:
+          storage: 250Mi
+      # Wartość storageClassName jest opcjonalna, jeśli nie zostanie podana, domyślnie zostanie użyta storage class zdefiniowana w klastrze.
+      # W przypadku Azure File Storage, można użyć storageClassName: azurefile
+      storageClassName: azurefile
+```
+
+- **Ustawienie wolumenów:**
+
+```yaml
+# values.yaml
+secrets:
+- name: afs-secret
+  data:
+  - key: azurestorageaccountname
+    value: your_account_name
+  - key: azurestorageaccountkey
+    value: your_account_key
+
+volumes:
+  all:
+  # Podstawienie wolumenu dla wszystkich komponentów aplikacji, który będzie montowany do katalogu /home/app/.config/Soneta/Authentication i będzie zawierał plik klucze dla tokenów aplikacji
+  - name: authentication
+    mountPath: /home/app/.config/Soneta/Authentication
+    subPath: tokenkey
+    spec:
+      csi:
+        driver: file.csi.azure.com
+        volumeAttributes:
+          shareName: your_share_name
+          secretName: afs-secret
+```
+
+- **Przykład parametryzacji ingress:**
+
+```yaml
+# values.yaml
+# Przykład konfiguracji sekcji ingress umożliwiającej wystawienie aplikacji na zewnątrz klastra z obsługą TLS oraz dodatkowymi adnotacjami dla kontrolera nginx.
 ingress:
   enabled: true
-resources:
-  afs:
-    accountName: login
-    accountKey: klucz
-    enabled: true
-    shareName: enova
-  web:
-    limits:
-      cpu: 500m
-      memory: 1Gi
-    requests:
-      cpu: 50m
-      memory: 384Mi
-  server:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 250m
-      memory: 384Mi
+  host: twoja.domena.pl
+  tlsSecretName: ingress-tls  # Nazwa sekretu TLS do obsługi HTTPS
+  annotations:
+    nginx.ingress.kubernetes.io/client-body-buffer-size: "50m"  # Maksymalny rozmiar bufora ciała żądania
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"          # Maksymalny rozmiar żądania przesyłanego przez proxy
+    nginx.ingress.kubernetes.io/proxy-buffer: "64k"             # Rozmiar bufora proxy
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"       # Rozmiar pojedynczego bufora proxy
 ```
-
-## Zawartość paczki
-
-Po utworzeniu nowego Chart’a lub wykorzystaniu gotowej paczki Soneta dostępne będą katalogi i pliki .yaml niezbędne do uruchomienia aplikacji w klastrze Kubernetes
-### Chart.yaml
-Plik Chart zawiera jego opis np. nazwę oraz wersję. Nie jest wykorzystywany do parametryzowania aplikacji
-
-### Helmignore
-Lista plików/folderów ignorowanych podczas budowania paczki np. test.txt, my-folder
-
-### Values.yaml 
-Jest zbiorem wartości, które będą zaimplementowane do Chart’a. Za pomocą tego pliku można określić np. z jakimi zasobami sprzętowymi zostanie uruchomiona skonteneryzowana aplikacja lub jej poszczególne POD’y, sparametryzować obsługę dodatkowego dysku do wymiany danych, czy ustawić przełączniki do uruchamiania poszczególnych POD’ów.
-Zawartość pliku values.yaml może pochodzić z kilku źródeł: \
-\
-•	Nadrzędny plik wartości „wstrzykiwanych” do Chart’a – w tym przypadku podczas instalacji lub aktualizacji wszystkie wartości wsadowe dla aplikacji pobierane z głównego katalogu Charta: 
-```console
-helm install enova soneta/soneta 
-```
-\
-•	Jest przekazywany do helm install lub helm upgrade z flagą _–f_ lub _-values_ : 
-```console
-helm install enova soneta/soneta –values .\values
-```
-Rozwiązanie to pozwala na użycie osobnego pliku values np. do parametryzowania poszczególnych instancji aplikacji. W takim przypadku dane 
-w pierwszej kolejności pobierane są ze wskazanego pliku values, pozostałe dane (o ile takie są) pobierane są z głównego katalogu Chart’a. Można więc w głównym pliku trzymać dane niezmienne, a dodatkowo parametryzować poszczególne instancje dodatkowym plikiem, który przekazywany jest do helm install lub helm upgrade. \
-\
-•	Poszczególne parametry przekazywane jako _--set_:
-```console 
-helm install enova soneta\soneta --set resources.server.limits.memory=2Gi
-```
-Na tym przykładzie ustawiony został limit pamięci dla serwera biznesowego na 2Gi. Wartości podczas instalacji lub aktualizacji wczytują się w następującej kolejności:  parametr _--set_, values z flagą _–f_ lub _-values_, values z głównego katalogu Chart’a. 
-##	Templates
-Templates jest podkatalogiem paczki Helm, z opisami zasobów wgrywanych na Kubernetes.
-
-###	Configmap.yaml
-ConfigMap to obiekt interfejsu API używany do przechowywania niepoufnych danych w parach klucz-wartość. służy do ustawiania danych konfiguracyjnych niezależnie od kodu aplikacji. ConfigMap umożliwia oddzielenie konfiguracji specyficznej dla środowiska od obrazów kontenerów, dzięki czemu aplikacje można łatwo przenosić. Przykładowo w enova365 jest on używany do połączenia instancji aplikacji z właściwą bazą danych. 
-
-###	 Secret.yaml
-Umożliwia przechowywanie poufnych informacji, takich jak hasła, tokeny i klucze ssh, klucze prywatne i zarządzanie nimi. Przechowywanie poufnych informacji w Secret jest bezpieczniejsze i bardziej elastyczne niż umieszczanie ich dosłownie w definicji Poda lub w obrazie kontenera. Użycie klucza tajnego oznacza, że nie trzeba zawierać poufnych danych w kodzie aplikacji.
-
-###	Deployment.yaml
-Informuje on Kubernetes, jak tworzyć i aktualizować instancje aplikacji. Po stworzeniu Deploymentu węzeł master Kubernetesa zleca uruchomienie tej aplikacji na indywidualnych węzłach klastra. Deployment dodatkowo dba o scenariusze aktualizacji podów, jeżeli wprowadzone zostaną zmiany np. nowa wersja obrazów. W środowisku enova365 rozróżniamy 4 deploymenty: \
-•	deployment-server – POD serwera biznesowego \
-•	deployment-web – POD serwera Web \
-•	deployment-webapi – POD do komunikacji z webapi \
-•	deployment-scheduler – POD harmonogramu zadań

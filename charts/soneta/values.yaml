@@ -30,6 +30,8 @@ appsettings:
       MemorySize: "16m"
       IndexSize: "16m"
       PageSize: "4m"
+  HealthCheck:
+    Enabled: true
 
 ingress:
   enabled: false

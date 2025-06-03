@@ -14,7 +14,7 @@ helm repo add soneta https://soneta.github.io/helm-charts
 
 W celu przeglądnia zawartości repozytorium należy wykonać polecenie:
 ```console
-helm search repo soneta
+helm search repo soneta -l --devel
 ```
 
 ## Zawartość
