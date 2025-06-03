@@ -45,6 +45,22 @@ ingress:
   host: enova365.pl
   # tlsSecretName: soneta-ingress-tls
 
+default-small-component-resources: &default-small-component-resources
+  limits:
+    cpu: 250m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
+default-big-component-resources: &default-big-component-resources
+  limits:
+    cpu: 1
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 384Mi
+
 resources:
   pvc:
     spec:
@@ -54,68 +70,23 @@ resources:
         requests:
           storage: 10Mi
   web:
-    limits:
-      cpu: 200m
-      memory: 256Mi
-    requests:
-      cpu: 50m
-      memory: 128Mi
+    <<: *default-small-component-resources
   webapi:
-    limits:
-      cpu: 200m
-      memory: 128Mi
-    requests:
-      cpu: 50m
-      memory: 64Mi
+    <<: *default-small-component-resources
   webwcf:
-    limits:
-      cpu: 200m
-      memory: 128Mi
-    requests:
-      cpu: 50m
-      memory: 64Mi
+    <<: *default-small-component-resources
   orchestrator:
-    limits:
-      cpu: 200m
-      memory: 384Mi
-    requests:
-      cpu: 50m
-      memory: 128Mi
+    <<: *default-small-component-resources
   router:
-    limits:
-      cpu: 200m
-      memory: 128Mi
-    requests:
-      cpu: 50m
-      memory: 64Mi
+    <<: *default-small-component-resources
   commhub:
-    limits:
-      cpu: 200m
-      memory: 128Mi
-    requests:
-      cpu: 50m
-      memory: 64Mi
+    <<: *default-small-component-resources
   server:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 250m
-      memory: 384Mi
+    <<: *default-big-component-resources
   scheduler:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 250m
-      memory: 384Mi
+    <<: *default-big-component-resources
   admin:
-    limits:
-      cpu: 1
-      memory: 1Gi
-    requests:
-      cpu: 250m
-      memory: 384Mi
+    <<: *default-big-component-resources
 
 nodeSelector: []
 
@@ -135,6 +106,7 @@ volumes:
   admin: []
 
 envs:
+  all: []
   frontend: []
   web: []
   webapi: []
@@ -145,6 +117,7 @@ envs:
   admin: []
 
 args:
+  all: []
   frontend: []
   web: []
   webapi: []
