@@ -3,6 +3,35 @@ entries:
   soneta:
   - annotations:
       artifacthub.io/changes: |-
+        - "Extended and updated the parameterization examples section in README.md"
+        - "Added detailed configuration examples: image, orchestrator, resources, env, PVC, volumes, ingress"
+        - "Added comments and descriptions to selected YAML fragments"
+        - "Organized and unified the Helm values.yaml configuration examples section"
+      artifacthub.io/containsSecurityUpdates: "false"
+    apiVersion: v2
+    appVersion: '>=2504.0.0'
+    created: "2025-06-03T10:19:23.692315992Z"
+    description: Soneta products Helm chart for Kubernetes
+    digest: 9bfbec476b9b8d2757c28ff5c698b18514096e6dc8e627788e278a59df214b09
+    home: https://enova.pl
+    keywords:
+    - enova
+    - enova365
+    - triva
+    - soneta
+    kubeVersion: '>=1.19.0'
+    maintainers:
+    - name: bartcho
+    - name: chodakq
+    name: soneta
+    sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+    urls:
+    - https://github.com/soneta/helm-charts/releases/download/soneta-0.5.0-alpha.3/soneta-0.5.0-alpha.3.tgz
+    version: 0.5.0-alpha.3
+  - annotations:
+      artifacthub.io/changes: |-
         - Extended and updated the parameterization examples section in README.md
         - Added detailed configuration examples: image, orchestrator, resources, env, PVC, volumes, ingress
         - Added comments and descriptions to selected YAML fragments
@@ -220,4 +249,4 @@ entries:
     urls:
     - https://soneta.github.io/helm-charts/soneta-0.2.0.tgz
     version: 0.2.0
-generated: "2025-06-03T09:38:51.812121154Z"
+generated: "2025-06-03T10:19:23.692358281Z"
