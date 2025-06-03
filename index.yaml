@@ -3,6 +3,35 @@ entries:
   soneta:
   - annotations:
       artifacthub.io/changes: |-
+        - Extended and updated the parameterization examples section in README.md
+        - Added detailed configuration examples: image, orchestrator, resources, env, PVC, volumes, ingress
+        - Added comments and descriptions to selected YAML fragments
+        - Organized and unified the Helm values.yaml configuration examples section
+      artifacthub.io/containsSecurityUpdates: "false"
+    apiVersion: v2
+    appVersion: '>=2504.0.0'
+    created: "2025-06-03T09:38:51.812073165Z"
+    description: Soneta products Helm chart for Kubernetes
+    digest: 04b47e96882dada50d5ed4b3b73a4514b08293c9a5d04c64fff6e1cf8c2a48b2
+    home: https://enova.pl
+    keywords:
+    - enova
+    - enova365
+    - triva
+    - soneta
+    kubeVersion: '>=1.19.0'
+    maintainers:
+    - name: bartcho
+    - name: chodakq
+    name: soneta
+    sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+    urls:
+    - https://github.com/soneta/helm-charts/releases/download/soneta-0.5.0-alpha.2/soneta-0.5.0-alpha.2.tgz
+    version: 0.5.0-alpha.2
+  - annotations:
+      artifacthub.io/changes: |-
         - Admin mode for orchestrator Kubernetes (LABIT)
         - Default values for GarnetServer
         - Improved ingress update and support for multiple component versions
@@ -191,4 +220,4 @@ entries:
     urls:
     - https://soneta.github.io/helm-charts/soneta-0.2.0.tgz
     version: 0.2.0
-generated: "2025-05-28T19:42:17.228759823Z"
+generated: "2025-06-03T09:38:51.812121154Z"
