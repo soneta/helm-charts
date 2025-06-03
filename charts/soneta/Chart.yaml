@@ -1,5 +1,5 @@
 apiVersion: v2
-version: 0.5.0-alpha.1
+version: 0.5.0-alpha.2
 appVersion: ">=2504.0.0"
 kubeVersion: ">=1.19.0"
 name: soneta
@@ -22,19 +22,7 @@ maintainers:
 annotations:
     artifacthub.io/containsSecurityUpdates: "false"
     artifacthub.io/changes: |
-        - Admin mode for orchestrator Kubernetes (LABIT)
-        - Default values for GarnetServer
-        - Improved ingress update and support for multiple component versions
-        - Parameters for default PVC in Helm package
-        - Router and Commhub as InProcess
-        - Migration from ReplicaSet to Deployment
-        - Adopt implementation for KubernetesHost
-        - CommHub in K8s orchestrator
-        - HealthCheck in Helm
-        - Fix for DataProtection-Keys directory handling in Helm package
-        - Log files support for servers and dbmgr on Kubernetes/Linux PODs
-        - Linux/Windows path support in Helm package
-        - Default Persistent Volume Claim for installation
-        - Orchestrator as ReplicaSet
-        - Ingress support
-        - Enabled Scheduler, WebApi, WebWcf
+        - Extended and updated the parameterization examples section in README.md
+        - Added detailed configuration examples: image, orchestrator, resources, env, PVC, volumes, ingress
+        - Added comments and descriptions to selected YAML fragments
+        - Organized and unified the Helm values.yaml configuration examples section
