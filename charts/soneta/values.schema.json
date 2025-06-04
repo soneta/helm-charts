@@ -111,9 +111,9 @@
     },
     "type": "object",
     "title": "Values",
-    "required": [
-        "image",
-        "dblist"
+    "oneOf": [ 
+        { "required": ["image", "dblist"] },
+        { "required": ["image", "listaBazDanych"] }
     ],
     "properties": {
         "image": {
@@ -161,6 +161,11 @@
         "dblist": {
             "type": "string",
             "description": "XML string containing database connection definitions. Used by the business logic to provide a list of databases. Example: <DatabaseCollection><MsSqlDatabase>...</MsSqlDatabase></DatabaseCollection>"
+        },
+        "listaBazDanych": {
+            "type": "string",
+            "description": "[DEPRECATED] Use 'dblist' instead. This property is obsolete and will be removed in a future release.",
+            "deprecated": true
         },
         "replicaCount": {
             "type": "number",
