@@ -63,6 +63,7 @@ default-big-component-resources: &default-big-component-resources
 
 resources:
   pvc:
+    enabled: true
     spec:
       accessModes:
         - ReadWriteMany

@@ -309,24 +309,37 @@ command: ["dotnet", "webwcf.dll"]
 {{- include $template (get $.Values.volumes $component) }}
 {{- end -}}
 
+{{- /* PVC helper to check enabled (implies existence) */ -}}
+{{- define "soneta.pvc.enabled" -}}
+  {{- if and .Values.resources .Values.resources.pvc .Values.resources.pvc.enabled -}}
+    true
+  {{- end -}}
+{{- end -}}
+
 {{- define "soneta.volumeMounts.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 }}
 {{- $os := include "soneta.nodeselector.os" . }}
+{{- if include "soneta.pvc.enabled" $ }}
+{{- if (has $component (list "server" "scheduler" "admin")) }}
+- mountPath: {{ include "soneta.specialfolder" (list $os "localappdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta" "Cache") }}
+  name: memo
+{{- end}}
 - mountPath: {{ include "soneta.specialfolder" (list $os "localappdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta") }}
   subPath: localappdata
   name: default-pvc
 - mountPath: {{ include "soneta.specialfolder" (list $os "appdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta") }}
   subPath: appdata
   name: default-pvc
-{{- if and $.Values.appsettings }}
-- name: appsettings-yaml
-  mountPath: {{ include "soneta.specialfolder" (list $os "appdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta" "config") }}
-{{- end -}}
 {{- if eq $component "web" }}
 - mountPath: {{ include "soneta.specialfolder" (list $os "localappdata" ) }}{{ include "soneta.path.combine" (list $os "ASP.NET" "DataProtection-Keys") }}
   subPath: DataProtection-Keys
   name: default-pvc
+{{- end }}
+{{- end }}
+{{- if and $.Values.appsettings }}
+- name: appsettings-yaml
+  mountPath: {{ include "soneta.specialfolder" (list $os "appdata" ) }}{{ include "soneta.path.combine" (list $os "Soneta" "config") }}
 {{- end -}}
 {{- if (has $component (list "server" "scheduler" "orchestrator" "admin")) }}
 {{ include "soneta.volumeMounts.dblist" $ -}}
@@ -337,9 +350,16 @@ command: ["dotnet", "webwcf.dll"]
 {{- define "soneta.volumes.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 }}
+{{- if include "soneta.pvc.enabled" $ }}
+- name: memo
+  emptyDir: {
+    medium: Memory,
+    sizeLimit: 100Mi
+  }
 - name: default-pvc
   persistentVolumeClaim:
     claimName: {{ include "soneta.fullname" (list $ "pvc") }}
+{{- end }}
 {{- if and $.Values.appsettings }}
 - name: appsettings-yaml
   configMap:
@@ -399,13 +419,7 @@ command: ["dotnet", "webwcf.dll"]
   {{- default .Capabilities.KubeVersion.Version -}}
 {{- end -}}
 
-{{- define "soneta.resources.pvc.storageClassName" -}}
-  {{- if .Values.resources.pvc.storageClassName -}}
-    {{- default .Values.resources.pvc.storageClassName -}}
-  {{- else -}}
-    azurefile
-  {{- end -}}
-{{- end -}}
+
 
 {{- define "soneta.isNet" -}}
   {{- if lt .Values.image.tag "2404.0.0" -}}
