@@ -14,6 +14,18 @@ metadata:
   labels:
 {{ include "soneta.labels" . | indent 4 }}
 spec:
+  initContainers:
+  {{- if eq $component "server" }}
+    - name: "{{ $.Chart.Name }}-init-{{ $component }}-{{ $.Values.image.product}}"
+      image: "{{ include "soneta.image.component" . }}"
+      imagePullPolicy: IfNotPresent
+      command: ["dotnet", "dbmgr.dll", "convert", "_"]
+      env:
+        {{- include (printf "soneta.envs.%s" $side) $ | nindent 8 }}
+        {{- include "soneta.envs.component" . |  nindent 8 }}
+      volumeMounts:
+        {{- include "soneta.volumeMounts.component" . | indent 8 }}
+  {{- end }}
   containers:
     - name: "{{ $.Chart.Name }}-{{ $component }}-{{ $.Values.image.product}}"
       image: "{{ include "soneta.image.component" . }}"

@@ -133,7 +133,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.admin.command" -}}
-{{- if include "soneta.isLinux" (list . "admin") -}}["tail", "-f", "/dev/null"]
+{{- if include "soneta.isLinux" (list . "admin") -}}["sleep", "infinity"]
 {{- else -}}["cmd.exe", "/c", "timeout /t -1"]
 {{- end -}}
 {{- end -}}
