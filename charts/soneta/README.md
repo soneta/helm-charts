@@ -36,6 +36,49 @@ Poza trybami pracy aplikacja może być uruchomiona w trybie administracyjnym, k
 ```console
 helm upgrade sample soneta/soneta -f values.yaml --install --set adminMode=true
 ```
+## Tworzenie nowego środowiska demo
+
+### Krok 1: Utworzenie bazy danych
+
+Jeśli baza danych nie istnieje, należy utworzyć ją w trybie administracyjnym. W tym celu:
+
+1. Ustaw pustą wartość dla zmiennej `dblist`
+2. Uruchom aplikację w trybie `adminMode`
+3. Połącz się z podem admin
+4. Wykonaj polecenie utworzenia bazy:
+
+```bash
+dotnet dbmgr.dll create <NAZWA_BAZY> \
+  --dbconfig ~/temp.xml \
+  --mssql \
+  --sqlserver <ADRES_SERWERA>,<PORT> \
+  --sqldb <NAZWA_BAZY> \
+  --sqluser <UŻYTKOWNIK> \
+  --sqlpwd "<HASŁO>" \
+  --demo gold \
+  --active \
+  --verbose \
+  --recreate
+```
+
+### Krok 2: Aktualizacja konfiguracji Helm
+
+Po pomyślnym utworzeniu bazy danych:
+
+1. Skopiuj zawartość wygenerowanego pliku `temp.xml`
+2. Wklej skopiowaną konfigurację do odpowiedniego pliku `values.yaml` w konfiguracji Helm
+
+### Krok 3: Aktualizacja deploymentu
+
+Wykonaj upgrade Helm z wyłączonym trybem administracyjnym:
+
+```bash
+helm upgrade   --set adminMode=false
+```
+
+Po wykonaniu tych kroków środowisko powinno być gotowe do użycia.
+
+
 ## Parametryzacja
 Aplikacja jest parametryzowana poprzez plik/pliki z opcją -f, wartości w plikach `values.yaml` są łączone w jedną całość.
 ```console
