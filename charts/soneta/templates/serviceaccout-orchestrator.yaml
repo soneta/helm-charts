@@ -4,9 +4,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ $name }}
-#   namespace: {{ .Release.Name }}
 ---
-kind: ClusterRole
+kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ $name }}
@@ -18,15 +17,11 @@ rules:
   - pods/status
   verbs:
   - get
-  - update
 - apiGroups:
   - ""
   resources:
   - pods
-  - configmaps
-  - nodes
   - services
-  - secrets
   verbs:
   - get
   - list
@@ -49,35 +44,14 @@ rules:
   - patch
   - update
   - delete
-- apiGroups:
-  - batch
-  resources:
-  - jobs
-  verbs:
-  - list
-  - create
-  - delete
-  - get
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - patch
-  - update
-  - delete
 ---
-kind: ClusterRoleBinding
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ $name }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: Role
   name: {{ $name }}
 subjects:
   - kind: ServiceAccount
