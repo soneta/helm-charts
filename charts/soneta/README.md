@@ -100,16 +100,29 @@ dblist: |-
 
 - **Tryb orkiestratora z wieloma bazami danych:**
 
+Szczegółowa dokumentacja dotycząca konfiguracji kompozycji, jest analogiczna jak w przypadku orchestratora procesowego i znajduje się bazie wiedzy pod adresem: https://dok.enova.pl/wdrozenia/konfiguracja-orkiestratora,5678
+
 ```yaml
 # values.yaml
 appsettings:
   orchestrator:
     kubernetes:
       composition:
+        router:
+          enabled: true
+          #inprocess: true  # odkomentować, aby uruchomić w podzie orchestratora
+        commhub:
+          enabled: true
+          #inprocess: true  # odkomentować, aby uruchomić w podzie orchestratora
         web:
           enabled: true
+          #replicas: 2  # odkomentować, aby ustawić liczbę replik web'a
+        webapi:
+          enabled: true
+          #replicas: 2  # odkomentować, aby ustawić liczbę replik webapi
         server:
           enabled: true
+          #maxDynamicRuns: 3 # odkomentować, aby ustawić maksymalną liczbę dynamicznych uruchomień serwera
 dblist: |-
   <DatabaseCollection>
     <MsSqlDatabase>
