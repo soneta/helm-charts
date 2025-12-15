@@ -22,7 +22,7 @@ maintainers:
 annotations:
     artifacthub.io/containsSecurityUpdates: "false"
     artifacthub.io/changes: |
-        - "Changed from ClusterRole to Role for RBAC (improved security) - #9"
+        - "Changed from ClusterRole to Role for RBAC (improved security)"
         - "Reduced orchestrator ServiceAccount permissions to minimum required"
         - "Updated README.md with new database creation demo section"
         - "Enhanced orchestrator Kubernetes configuration documentation"
