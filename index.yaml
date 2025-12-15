@@ -3,6 +3,37 @@ entries:
   soneta:
   - annotations:
       artifacthub.io/changes: |
+        - "Changed from ClusterRole to Role for RBAC (improved security) - #9"
+        - "Reduced orchestrator ServiceAccount permissions to minimum required"
+        - "Updated README.md with new database creation demo section"
+        - "Enhanced orchestrator Kubernetes configuration documentation"
+        - "Added detailed examples: router, commhub, web, webapi, server configuration"
+        - "Added optional settings: replicas and maxDynamicRuns configuration examples"
+      artifacthub.io/containsSecurityUpdates: "false"
+    apiVersion: v2
+    appVersion: '>=2504.0.0'
+    created: "2025-12-15T13:15:02.630283671Z"
+    description: Soneta products Helm chart for Kubernetes
+    digest: ca31ad1ad956ab21c44dbb96e9e209794833382df942293fcccf3f8ec979df51
+    home: https://enova.pl
+    keywords:
+    - enova
+    - enova365
+    - triva
+    - soneta
+    kubeVersion: '>=1.19.0'
+    maintainers:
+    - name: bartcho
+    - name: chodakq
+    name: soneta
+    sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+    urls:
+    - https://github.com/soneta/helm-charts/releases/download/soneta-0.5.1/soneta-0.5.1.tgz
+    version: 0.5.1
+  - annotations:
+      artifacthub.io/changes: |
         - "Marked listBazDanych as deprecated"
         - "Added Helm chart coding guidelines and refactored values.yaml with YAML anchors"
         - "Extended and updated the parameterization examples section in README.md"
@@ -296,4 +327,4 @@ entries:
     urls:
     - https://soneta.github.io/helm-charts/soneta-0.2.0.tgz
     version: 0.2.0
-generated: "2025-06-04T09:58:12.367636824Z"
+generated: "2025-12-15T13:15:02.630336369Z"
