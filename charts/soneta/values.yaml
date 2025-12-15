@@ -7,7 +7,7 @@ adminMode: false
 replicaCount: 1
 image:
   product: "standard"
-  tag: "2504.2.4"
+  tag: "2512.0.0"
   webTagPostfix: -alpine
   serverTagPostfix: -alpine
   repository: ""
