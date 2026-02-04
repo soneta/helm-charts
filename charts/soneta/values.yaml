@@ -24,23 +24,23 @@ service:
   server:
     type: ClusterIP
 
-appsettings: 
-  CommHub:
-    GarnetServer:
-      MemorySize: "16m"
-      IndexSize: "16m"
-      PageSize: "4m"
-  HealthCheck:
-    Enabled: true
+# appsettings:
+#   CommHub:
+#     GarnetServer:
+#       MemorySize: "16m"
+#       IndexSize: "16m"
+#       PageSize: "4m"
+# HealthCheck:
+#   Enabled: true
 
 ingress:
   enabled: false
-  # releaseAutoAnnotation: 
+  # releaseAutoAnnotation:
   #   key: nginx.ingress.kubernetes.io/session-cookie-name
   #   prefix: ""
   #   postfix: "-INGRESSCOOKIE"
   # annotations:
-  #   nginx.ingress.kubernetes.io/affinity: cookie 
+  #   nginx.ingress.kubernetes.io/affinity: cookie
   class: nginx
   host: enova365.pl
   # tlsSecretName: soneta-ingress-tls
