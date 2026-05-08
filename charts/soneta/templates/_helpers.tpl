@@ -253,6 +253,15 @@ c:\\config\\dblist.xml
 {{- end -}}
 {{- end -}}
 
+{{- define "soneta.compiler.command" -}}
+{{- if include "soneta.isNet" . -}}["dotnet", "compiler.dll"]
+{{- else -}}
+    {{- if eq .Values.image.product "standard"  }}[ "SonetaServer.exe" ]
+        {{- else -}}[ "SonetaServerPremium.exe" ]
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "soneta.scheduler.args" -}}
   {{- if include "soneta.isNet" . -}}
 - --mode=Daemon
@@ -517,7 +526,7 @@ http://{{ include "soneta.fullname" $args }}:80
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
 {{- $port := 8080 -}}
-{{- if not (has $component (list "commhub" "admin")) }}
+{{- if not (has $component (list "commhub" "admin" "compiler")) }}
 {{- if eq (include "soneta.side" $component) "frontend"}}
 livenessProbe:
   httpGet:

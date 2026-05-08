@@ -138,6 +138,10 @@
                     "type": "boolean",
                     "default": false
                 },
+                "compiler": {
+                    "type": "boolean",
+                    "default": false
+                },
                 "webapi": {
                     "type": "boolean",
                     "default": false
@@ -251,6 +255,7 @@
                 "webapi": { "$ref": "#/$defs/resourceRequirements" },
                 "server": { "$ref": "#/$defs/resourceRequirements" },
                 "scheduler": { "$ref": "#/$defs/resourceRequirements" },
+                "compiler": { "$ref": "#/$defs/resourceRequirements" },
                 "orchestrator": { "$ref": "#/$defs/resourceRequirements" },
                 "router": { "$ref": "#/$defs/resourceRequirements" },
                 "commhub": { "$ref": "#/$defs/resourceRequirements" },
@@ -391,6 +396,21 @@
                             "description": "Kubernetes volume specification"
                         }
                     }
+                },
+                "compiler": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
                 }
             }  
         },
@@ -486,6 +506,17 @@
                             "type": "string"
                         }
                     }
+                },
+                "compiler": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },
@@ -500,7 +531,8 @@
                 "webwcf": { "type": "array", "items": {"type": "string"} },
                 "backend": { "type": "array", "items": {"type": "string"} },
                 "server": { "type": "array", "items": {"type": "string"} },
-                "scheduler": { "type": "array", "items": {"type": "string"} }
+                "scheduler": { "type": "array", "items": {"type": "string"} },
+                "compiler": { "type": "array", "items": {"type": "string"} }
             }
         } 
     }
