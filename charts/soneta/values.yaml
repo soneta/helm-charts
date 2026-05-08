@@ -12,6 +12,7 @@ image:
   serverTagPostfix: -alpine
   repository: ""
   scheduler: false
+  compiler: false
   webapi: false
   webwcf: false
 
@@ -85,6 +86,8 @@ resources:
     <<: *default-big-component-resources
   scheduler:
     <<: *default-big-component-resources
+  compiler:
+    <<: *default-big-component-resources
   admin:
     <<: *default-big-component-resources
 
@@ -103,6 +106,7 @@ volumes:
   backend: []
   server: []
   scheduler: []
+  compiler: []
   admin: []
 
 envs:
@@ -114,6 +118,7 @@ envs:
   backend: []
   server: []
   scheduler: []
+  compiler: []
   admin: []
 
 args:
@@ -125,4 +130,5 @@ args:
   backend: []
   server: []
   scheduler: []
+  compiler: []
   admin: []
