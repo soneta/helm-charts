@@ -32,4 +32,7 @@ orchestrator:
       commhub:
         service: {{ include "soneta.service" $commhub | toYaml }}
         pod: {{ include "soneta.pod" $commhub | toYaml }}
+      dashboard:
+        service: {{ include "soneta.service.dashboard" . | toJson }}
+        pod: {{ include "soneta.pod.dashboard" . | toJson }}
 {{- end -}}

@@ -150,6 +150,11 @@
                     "type": "boolean",
                     "default": false
                 },
+                "dashboard": {
+                    "type": "string",
+                    "default": "mcr.microsoft.com/dotnet/aspire-dashboard:13",
+                    "description": "Aspire Dashboard container image used by orchestrator composition dashboard component"
+                },
                 "webTagpostfix": {
                     "type": "string",
                     "default": "",
@@ -259,6 +264,7 @@
                 "orchestrator": { "$ref": "#/$defs/resourceRequirements" },
                 "router": { "$ref": "#/$defs/resourceRequirements" },
                 "commhub": { "$ref": "#/$defs/resourceRequirements" },
+                "dashboard": { "$ref": "#/$defs/resourceRequirements" },
                 "webwcf": { "$ref": "#/$defs/resourceRequirements" },
                 "admin": { "$ref": "#/$defs/resourceRequirements" },
                 "pvc": {
@@ -353,6 +359,21 @@
                     }
                 },
                 "webwcf": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "mountPath": {
+                            "type": "string"
+                        },
+                        "spec": {
+                            "type":"object",
+                            "description": "Kubernetes volume specification"
+                        }
+                    }
+                },
+                "dashboard": {
                     "type": "array",
                     "properties": {
                         "name": {
@@ -485,6 +506,17 @@
                         }
                     }
                 },
+                "dashboard": {
+                    "type": "array",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    }
+                },
                 "server": {
                     "type": "array",
                     "properties": {
@@ -529,6 +561,7 @@
                 "web": { "type": "array", "items": {"type": "string"} },
                 "webapi": { "type": "array", "items": {"type": "string"} },
                 "webwcf": { "type": "array", "items": {"type": "string"} },
+                "dashboard": { "type": "array", "items": {"type": "string"} },
                 "backend": { "type": "array", "items": {"type": "string"} },
                 "server": { "type": "array", "items": {"type": "string"} },
                 "scheduler": { "type": "array", "items": {"type": "string"} },
