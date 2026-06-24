@@ -107,6 +107,50 @@
                 }
             },
             "required": ["accessModes", "resources"]
+        },
+        "probe": {
+            "type": "object",
+            "description": "Overrides for a single Kubernetes probe. The handler (httpGet /healthz for frontend components, grpc for backend) and its port are managed by the chart and cannot be changed here — only the toggle and timing/threshold fields are configurable. Any extra property is passed through to the rendered probe.",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Toggle this probe on or off. Defaults: liveness and startup true, readiness false."
+                },
+                "failureThreshold": {
+                    "type": "integer",
+                    "description": "Number of consecutive failures before the probe is considered failed."
+                },
+                "periodSeconds": {
+                    "type": "integer",
+                    "description": "How often (in seconds) to perform the probe."
+                },
+                "initialDelaySeconds": {
+                    "type": "integer",
+                    "description": "Seconds to wait after the container starts before the first probe."
+                },
+                "timeoutSeconds": {
+                    "type": "integer",
+                    "description": "Seconds after which the probe times out."
+                },
+                "successThreshold": {
+                    "type": "integer",
+                    "description": "Consecutive successes required for the probe to be considered successful after a failure."
+                }
+            },
+            "additionalProperties": true
+        },
+        "componentHealthcheck": {
+            "type": "object",
+            "description": "Health check (probe) configuration for a single component. An `enabled: false` here disables all probes for the component.",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Toggle all probes for this component on or off (default true)."
+                },
+                "liveness": { "$ref": "#/$defs/probe" },
+                "startup": { "$ref": "#/$defs/probe" },
+                "readiness": { "$ref": "#/$defs/probe" }
+            }
         }
     },
     "type": "object",
@@ -265,6 +309,24 @@
                         }
                     }
                 }
+            }
+        },
+
+        "healthcheck": {
+            "type": "object",
+            "description": "Kubernetes probe (health check) configuration. The chart manages the probe handler (httpGet /healthz for frontend components, grpc for backend) and defaults; this block only overrides timing/threshold fields or toggles probes on/off via a three-tier kill-switch (global -> component -> probe type), where an ancestor `enabled: false` wins. By default liveness and startup probes are enabled and readiness is disabled. commhub and admin have no probes.",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Global toggle for all probes across all components (default true)."
+                },
+                "web": { "$ref": "#/$defs/componentHealthcheck" },
+                "webapi": { "$ref": "#/$defs/componentHealthcheck" },
+                "webwcf": { "$ref": "#/$defs/componentHealthcheck" },
+                "server": { "$ref": "#/$defs/componentHealthcheck" },
+                "scheduler": { "$ref": "#/$defs/componentHealthcheck" },
+                "orchestrator": { "$ref": "#/$defs/componentHealthcheck" },
+                "router": { "$ref": "#/$defs/componentHealthcheck" }
             }
         },
 

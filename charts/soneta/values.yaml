@@ -89,6 +89,17 @@ resources:
   admin:
     <<: *default-big-component-resources
 
+# Kubernetes probes (health checks) are managed by the chart: liveness and startup
+# are enabled by default, readiness is disabled. To override timing/thresholds or
+# toggle probes off, set a `healthcheck:` block. See values.schema.json (the
+# `healthcheck` property) for the full structure and per-field docs. Example:
+# healthcheck:
+#   web:
+#     liveness:
+#       failureThreshold: 5
+#     readiness:
+#       enabled: true
+
 nodeSelector: []
 
 tolerations: []

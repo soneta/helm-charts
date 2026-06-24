@@ -533,32 +533,39 @@ http://{{ include "soneta.fullname" $args }}:80
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
 {{- $port := 8080 -}}
+{{- $side := include "soneta.side" $component -}}
 {{- if not (has $component (list "commhub" "admin")) }}
-{{- if eq (include "soneta.side" $component) "frontend"}}
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: {{ $port }}
-  failureThreshold: 3
-  periodSeconds: 5
-startupProbe:
-  httpGet:
-    path: /healthz
-    port: {{ $port }}
-  failureThreshold: 10
-  periodSeconds: 5
+{{- if or (eq $side "frontend") (eq $side "backend") -}}
+{{- /* Template-owned handler: httpGet for frontend, grpc for backend. Not operator-configurable. */ -}}
+{{- $handler := dict -}}
+{{- if eq $side "frontend" -}}
+{{- $handler = dict "httpGet" (dict "path" "/healthz" "port" $port) -}}
+{{- else -}}
+{{- $handler = dict "grpc" (dict "port" $port) -}}
+{{- end -}}
+{{- /* Template-owned default scalars per probe type. readiness disabled by default. */ -}}
+{{- $defaults := dict
+      "liveness"  (dict "enabled" true  "failureThreshold" 3  "periodSeconds" 5)
+      "startup"   (dict "enabled" true  "failureThreshold" 10 "periodSeconds" 5)
+      "readiness" (dict "enabled" false "failureThreshold" 3  "periodSeconds" 5)
+-}}
+{{- /* dig (not default) for the enabled flags: default treats false as empty and would flip explicit `enabled: false` back to true. */ -}}
+{{- $hc := default (dict) $.Values.healthcheck -}}
+{{- $hcEnabled := dig "enabled" true $hc -}}
+{{- $hcComponent := default (dict) (get $hc $component) -}}
+{{- $componentEnabled := dig "enabled" true $hcComponent -}}
+{{- range $type := list "liveness" "startup" "readiness" -}}
+{{- $typeDefault := get $defaults $type -}}
+{{- $userType := default (dict) (get $hcComponent $type) -}}
+{{- $typeEnabled := dig "enabled" (get $typeDefault "enabled") $userType -}}
+{{- if and $hcEnabled $componentEnabled $typeEnabled }}
+{{- /* Emit fixed handler first, then default scalars with user-supplied timing fields (enabled stripped) merged over them. Handler is not mergeable. */ -}}
+{{- $scalars := mergeOverwrite (omit $typeDefault "enabled") (omit $userType "enabled") -}}
+{{- printf "%sProbe:" $type | nindent 0 }}
+{{- toYaml $handler | nindent 2 }}
+{{- toYaml $scalars | nindent 2 }}
 {{- end }}
-{{- if eq (include "soneta.side" $component) "backend"}}
-livenessProbe:
-  grpc:
-    port: {{ $port }}
-  failureThreshold: 3
-  periodSeconds: 5
-startupProbe:
-  grpc:
-    port: {{ $port }}
-  failureThreshold: 10
-  periodSeconds: 5      
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end -}}
