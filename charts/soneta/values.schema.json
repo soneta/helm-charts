@@ -125,6 +125,11 @@
                     "default": "",
                     "description": "Repository url, if empty then dockerhub"
                 },
+                "organization": {
+                    "type": "string",
+                    "default": "soneta",
+                    "description": "Path segment after the registry host (Docker Hub organization, or project name in a private registry). Defaults to 'soneta'; change only when images are published under a different name."
+                },
                 "product": {
                     "type" :"string",
                     "default": "standard",
@@ -174,7 +179,18 @@
 
         "imagePullSecrets": {
             "type": "array",
-            "description": "List of Kubernetes secrets used to pull images from private registries."
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of a kubernetes.io/dockerconfigjson Secret in the release namespace."
+                    }
+                },
+                "required": ["name"],
+                "additionalProperties": false
+            },
+            "description": "Optional. Only needed when images are pulled from a registry that requires authentication; leave empty for public images. Each entry is an object with a 'name' key, e.g. [{name: regcred}]. The Secret must exist in the same namespace as the release."
         },
 
         "nameOverride": {

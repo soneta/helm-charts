@@ -11,6 +11,7 @@ image:
   webTagPostfix: -alpine
   serverTagPostfix: -alpine
   repository: ""
+  organization: "soneta"
   scheduler: false
   webapi: false
   webwcf: false
