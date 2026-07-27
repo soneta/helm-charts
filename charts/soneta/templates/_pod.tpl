@@ -103,6 +103,10 @@ spec:
         {{- include "soneta.volumeMounts.component" . | indent 8 }}
   volumes:
     {{- include "soneta.volumes.component" . | indent 4 }}
+{{- with $.Values.imagePullSecrets }}
+  imagePullSecrets:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
   nodeSelector:
     kubernetes.io/os: {{ $os }}
 {{- with $.Values.nodeSelector }}
