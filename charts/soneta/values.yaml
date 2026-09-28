@@ -88,6 +88,23 @@ resources:
   admin:
     <<: *default-big-component-resources
 
+# Kubernetes probes (health checks) are managed by the chart: liveness and startup are enabled
+# by default, readiness is disabled. Settings are applied in order all -> frontend/backend -> component,
+# only enabled, failureThreshold, periodSeconds and timeoutSeconds can be overridden.
+# See values.schema.json (the `healthcheck` property) and README.md for details.
+healthcheck:
+  enabled: true
+  all: {}
+  frontend: {}
+  web: {}
+  webapi: {}
+  webwcf: {}
+  backend: {}
+  server: {}
+  scheduler: {}
+  orchestrator: {}
+  router: {}
+
 nodeSelector: []
 
 tolerations: []

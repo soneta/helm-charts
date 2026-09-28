@@ -219,3 +219,24 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-buffer: "64k"             # Rozmiar bufora proxy
     nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"       # Rozmiar pojedynczego bufora proxy
 ```
+
+- **Ustawienie health checków (probe'ów):**
+
+```yaml
+# values.yaml
+# Handler (httpGet /healthz lub grpc) ustala paczka, w values można włączać i wyłączać probe'y oraz zmieniać ich czasy i progi.
+# Ustawienia są nakładane w kolejności: all -> frontend/backend -> komponent. Domyślnie włączone są liveness i startup, readiness jest wyłączony.
+healthcheck:
+  # enabled: false  # Wyłączenie wszystkich probe'ów
+  all:
+    liveness:
+      failureThreshold: 5    # Liczba nieudanych prób, po której kontener jest restartowany
+  backend:
+    startup:
+      failureThreshold: 30   # Dłuższy czas na start serwera, np. przy dużych bazach (30 x 5 s)
+  web:
+    readiness:
+      enabled: true          # Włączenie readiness probe, np. przy wielu replikach
+  scheduler:
+    enabled: false           # Wyłączenie probe'ów dla komponentu
+```

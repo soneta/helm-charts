@@ -515,36 +515,50 @@ http://{{ include "soneta.fullname" $args }}:80
 {{ join $separator (slice . 1) }}
 {{- end -}}
 
+{{/*
+Kubernetes probes of a component. The handler (httpGet /healthz for frontend, grpc for backend) is owned by the chart,
+.Values.healthcheck only toggles probes and overrides timing/threshold fields. Settings are applied in order:
+all -> frontend/backend -> component, the most specific wins. An `enabled: false` on any level disables all probes below it.
+*/}}
 {{- define "soneta.probes" }}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
+{{- $side := include "soneta.side" $component -}}
 {{- $port := 8080 -}}
-{{- if not (has $component (list "commhub" "admin")) }}
-{{- if eq (include "soneta.side" $component) "frontend"}}
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: {{ $port }}
-  failureThreshold: 3
-  periodSeconds: 5
-startupProbe:
-  httpGet:
-    path: /healthz
-    port: {{ $port }}
-  failureThreshold: 10
-  periodSeconds: 5
-{{- end }}
-{{- if eq (include "soneta.side" $component) "backend"}}
-livenessProbe:
-  grpc:
-    port: {{ $port }}
-  failureThreshold: 3
-  periodSeconds: 5
-startupProbe:
-  grpc:
-    port: {{ $port }}
-  failureThreshold: 10
-  periodSeconds: 5      
-{{- end }}
-{{- end }}
+{{- if not (has $component (list "commhub" "admin")) -}}
+{{- $handler := dict "grpc" (dict "port" $port) -}}
+{{- if eq $side "frontend" -}}
+{{- $handler = dict "httpGet" (dict "path" "/healthz" "port" $port) -}}
+{{- end -}}
+{{- $defaults := dict
+      "liveness"  (dict "enabled" true  "failureThreshold" 3  "periodSeconds" 5)
+      "startup"   (dict "enabled" true  "failureThreshold" 10 "periodSeconds" 5)
+      "readiness" (dict "enabled" false "failureThreshold" 3  "periodSeconds" 5)
+-}}
+{{- $fields := list "enabled" "failureThreshold" "periodSeconds" "timeoutSeconds" -}}
+{{- $healthcheck := $.Values.healthcheck | default dict -}}
+{{- $levels := list (get $healthcheck "all") (get $healthcheck $side) (get $healthcheck $component) -}}
+{{- /* dig instead of default: default treats false as empty and would turn an explicit `enabled: false` back on. */ -}}
+{{- $enabled := dig "enabled" true $healthcheck -}}
+{{- range $level := $levels -}}
+{{- $enabled = and $enabled (dig "enabled" true ($level | default dict)) -}}
+{{- end -}}
+{{- if $enabled -}}
+{{- range $type := list "liveness" "startup" "readiness" -}}
+{{- $probe := deepCopy (get $defaults $type) -}}
+{{- range $level := $levels -}}
+{{- $overrides := dig $type dict ($level | default dict) -}}
+{{- range $field := $fields -}}
+{{- if hasKey $overrides $field -}}
+{{- $_ := set $probe $field (get $overrides $field) -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- if get $probe "enabled" }}
+{{ $type }}Probe:
+{{- toYaml (merge (omit $probe "enabled") $handler) | nindent 2 }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
 {{- end -}}
