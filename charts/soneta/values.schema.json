@@ -107,6 +107,43 @@
                 }
             },
             "required": ["accessModes", "resources"]
+        },
+        "probe": {
+            "type": "object",
+            "description": "Overrides for a single probe, the handler is managed by the chart.",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Enable the probe (liveness and startup true, readiness false)."
+                },
+                "failureThreshold": {
+                    "type": "integer",
+                    "description": "Number of consecutive failures (liveness 3, startup 10, readiness 3)."
+                },
+                "periodSeconds": {
+                    "type": "integer",
+                    "description": "Probe period in seconds (default 5)."
+                },
+                "timeoutSeconds": {
+                    "type": "integer",
+                    "description": "Probe timeout in seconds (default 1)."
+                }
+            },
+            "additionalProperties": false
+        },
+        "componentHealthcheck": {
+            "type": "object",
+            "description": "Probes configuration for a scope or a single component.",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Enable probes in this scope (default true)."
+                },
+                "liveness": { "$ref": "#/$defs/probe" },
+                "startup": { "$ref": "#/$defs/probe" },
+                "readiness": { "$ref": "#/$defs/probe" }
+            },
+            "additionalProperties": false
         }
     },
     "type": "object",
@@ -266,6 +303,28 @@
                     }
                 }
             }
+        },
+
+        "healthcheck": {
+            "type": "object",
+            "description": "Kubernetes probes configuration, applied in order all -> frontend/backend -> component. Example: { backend: { startup: { failureThreshold: 30 } }, web: { readiness: { enabled: true } } }",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Enable probes for all components (default true)."
+                },
+                "all": { "$ref": "#/$defs/componentHealthcheck" },
+                "frontend": { "$ref": "#/$defs/componentHealthcheck" },
+                "backend": { "$ref": "#/$defs/componentHealthcheck" },
+                "web": { "$ref": "#/$defs/componentHealthcheck" },
+                "webapi": { "$ref": "#/$defs/componentHealthcheck" },
+                "webwcf": { "$ref": "#/$defs/componentHealthcheck" },
+                "server": { "$ref": "#/$defs/componentHealthcheck" },
+                "scheduler": { "$ref": "#/$defs/componentHealthcheck" },
+                "orchestrator": { "$ref": "#/$defs/componentHealthcheck" },
+                "router": { "$ref": "#/$defs/componentHealthcheck" }
+            },
+            "additionalProperties": false
         },
 
         "volumes": {
