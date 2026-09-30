@@ -515,11 +515,6 @@ http://{{ include "soneta.fullname" $args }}:80
 {{ join $separator (slice . 1) }}
 {{- end -}}
 
-{{/*
-Kubernetes probes of a component. The handler (httpGet /healthz for frontend, grpc for backend) is owned by the chart,
-.Values.healthcheck only toggles probes and overrides timing/threshold fields. Settings are applied in order:
-all -> frontend/backend -> component, the most specific wins. An `enabled: false` on any level disables all probes below it.
-*/}}
 {{- define "soneta.probes" }}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
@@ -538,7 +533,6 @@ all -> frontend/backend -> component, the most specific wins. An `enabled: false
 {{- $fields := list "enabled" "failureThreshold" "periodSeconds" "timeoutSeconds" -}}
 {{- $healthcheck := $.Values.healthcheck | default dict -}}
 {{- $levels := list (get $healthcheck "all") (get $healthcheck $side) (get $healthcheck $component) -}}
-{{- /* dig instead of default: default treats false as empty and would turn an explicit `enabled: false` back on. */ -}}
 {{- $enabled := dig "enabled" true $healthcheck -}}
 {{- range $level := $levels -}}
 {{- $enabled = and $enabled (dig "enabled" true ($level | default dict)) -}}

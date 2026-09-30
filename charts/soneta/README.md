@@ -224,8 +224,7 @@ ingress:
 
 ```yaml
 # values.yaml
-# Handler (httpGet /healthz lub grpc) ustala paczka, w values można włączać i wyłączać probe'y oraz zmieniać ich czasy i progi.
-# Ustawienia są nakładane w kolejności: all -> frontend/backend -> komponent. Domyślnie włączone są liveness i startup, readiness jest wyłączony.
+# Przykład nadpisania ustawień probe'ów (all -> frontend/backend -> komponent), handler ustala paczka.
 healthcheck:
   # enabled: false  # Wyłączenie wszystkich probe'ów
   all:
@@ -233,7 +232,7 @@ healthcheck:
       failureThreshold: 5    # Liczba nieudanych prób, po której kontener jest restartowany
   backend:
     startup:
-      failureThreshold: 30   # Dłuższy czas na start serwera, np. przy dużych bazach (30 x 5 s)
+      failureThreshold: 30   # Więcej czasu na start serwera (30 x 5 s)
   web:
     readiness:
       enabled: true          # Włączenie readiness probe, np. przy wielu replikach

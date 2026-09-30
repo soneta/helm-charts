@@ -22,7 +22,6 @@ maintainers:
 annotations:
     artifacthub.io/containsSecurityUpdates: "false"
     artifacthub.io/changes: |
-        - "Added healthcheck values to configure liveness, startup and readiness probes (all, frontend, backend and per component)"
-        - "Probe handlers stay managed by the chart, only enabled, failureThreshold, periodSeconds and timeoutSeconds can be overridden"
-        - "Readiness probe available as opt-in, default probes unchanged"
-        - "Added health check configuration example to README.md"
+        - "Health check parameters in values.yaml"
+        - "Optional readiness probe"
+        - "Added health check example to README.md"
