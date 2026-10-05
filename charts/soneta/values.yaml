@@ -63,6 +63,14 @@ default-big-component-resources: &default-big-component-resources
     cpu: 250m
     memory: 384Mi
 
+default-special-component-resources: &default-special-component-resources
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
 resources:
   pvc:
     spec:
@@ -90,9 +98,9 @@ resources:
   scheduler:
     <<: *default-big-component-resources
   compiler:
-    <<: *default-big-component-resources
+    <<: *default-special-component-resources
   admin:
-    <<: *default-big-component-resources
+    <<: *default-special-component-resources
 
 nodeSelector: []
 
