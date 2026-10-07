@@ -86,7 +86,11 @@ spec:
           value: tcp://+:8082
         {{- end }}  
       {{- end }}
-      {{- if include "soneta.isCommHub" $ }}
+      {{- if and (eq $component "server") (not (include "soneta.isOrchestrator" $)) }}
+        - name: SONETA_{{ "commhub" | upper }}__URLS
+          value: tcp://+:8082
+      {{- end }}
+      {{- if and (ne $component "admin") (or (include "soneta.isCommHub" $) (not (include "soneta.isOrchestrator" $))) }}
         - name: SONETA_CommHubClient__Enabled
           value: "true"
         - name: SONETA_CommHubClient__Endpoints__0
