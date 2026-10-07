@@ -484,7 +484,9 @@ http://{{ include "soneta.fullname" $args }}:80
 
 {{- define "soneta.commhubendpoint" -}}
 {{- $args := "" -}}
-{{- if include "soneta.isCommHub" . -}}
+{{- if not (include "soneta.isOrchestrator" .) -}}
+{{ include "soneta.fullname" (list . "server" "commhub") }}:80
+{{- else if include "soneta.isCommHub" . -}}
   {{- if include "soneta.isCommHubInProcess" . -}}
     {{- $args = list . "orchestrator" "commhub" -}}
   {{- else -}}

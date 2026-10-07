@@ -1,4 +1,6 @@
 {{- if not (include "soneta.isOrchestrator" .) -}}
 {{- $component := (list . "server") -}}
 {{ include "soneta.service" $component }}
+---
+{{ include "soneta.service" (list . "server" "commhub" 8082) }}
 {{- end -}}
