@@ -8,6 +8,10 @@ metadata:
 {{ include "soneta.labels" . | indent 4 }}
 spec:
   replicas: {{ $.Values.replicaCount }}
+{{- if eq (index . 1) "orchestrator" }}
+  strategy:
+    type: Recreate
+{{- end }}
   selector:
     matchLabels:
 {{ include "soneta.selectors" . | indent 6 }}
