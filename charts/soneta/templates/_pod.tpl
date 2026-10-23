@@ -56,6 +56,12 @@ spec:
               fieldPath: metadata.labels['app.kubernetes.io/version']
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: k8s.node.name=$(SONETA_KUBERNETES__NODE),k8s.namespace.name=$(SONETA_KUBERNETES__NAMESPACE),helm.release.name=$(SONETA_KUBERNETES__HELMRELEASE)
+      {{- if include "soneta.isDashboard" $ }}
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: {{ include "soneta.dashboard.otlp.grpc.endpoint" $ }}
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          value: grpc
+      {{- end }}
         {{- include (printf "soneta.envs.%s" $side) $ | nindent 8 }}
         {{- include "soneta.envs.component" . |  nindent 8 }}
         - name: SONETA_OrchestratorEndpoint
@@ -80,7 +86,11 @@ spec:
           value: tcp://+:8082
         {{- end }}  
       {{- end }}
-      {{- if include "soneta.isCommHub" $ }}
+      {{- if and (eq $component "server") (not (include "soneta.isOrchestrator" $)) }}
+        - name: SONETA_{{ "commhub" | upper }}__URLS
+          value: tcp://+:8082
+      {{- end }}
+      {{- if and (ne $component "admin") (or (include "soneta.isCommHub" $) (not (include "soneta.isOrchestrator" $))) }}
         - name: SONETA_CommHubClient__Enabled
           value: "true"
         - name: SONETA_CommHubClient__Endpoints__0

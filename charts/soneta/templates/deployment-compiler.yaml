@@ -1,0 +1,4 @@
+{{- if and (not (include "soneta.isAdminMode" .)) (.Values.image.compiler) (not (include "soneta.isOrchestrator" .)) -}}
+{{- $component := (list . "compiler") -}}
+{{ include "soneta.deployment" $component }}
+{{- end }}

@@ -25,8 +25,14 @@ orchestrator:
 {{- $scheduler := (list . "scheduler") }}          
       scheduler:
         pod: {{ include "soneta.pod" $scheduler | toYaml }}
+{{- $compiler := (list . "compiler") }}          
+      compiler:
+        pod: {{ include "soneta.pod" $compiler | toYaml }}
 {{- $commhub := (list . "commhub") }}          
       commhub:
         service: {{ include "soneta.service" $commhub | toYaml }}
         pod: {{ include "soneta.pod" $commhub | toYaml }}
+      dashboard:
+        service: {{ include "soneta.service.dashboard" . | toJson }}
+        pod: {{ include "soneta.pod.dashboard" . | toJson }}
 {{- end -}}

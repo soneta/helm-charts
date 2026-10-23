@@ -12,8 +12,10 @@ image:
   serverTagPostfix: -alpine
   repository: ""
   scheduler: false
+  compiler: false
   webapi: false
   webwcf: false
+  dashboard: "mcr.microsoft.com/dotnet/aspire-dashboard:13"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -61,6 +63,14 @@ default-big-component-resources: &default-big-component-resources
     cpu: 250m
     memory: 384Mi
 
+default-special-component-resources: &default-special-component-resources
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
 resources:
   pvc:
     spec:
@@ -81,12 +91,16 @@ resources:
     <<: *default-small-component-resources
   commhub:
     <<: *default-small-component-resources
+  dashboard:
+    <<: *default-small-component-resources
   server:
     <<: *default-big-component-resources
   scheduler:
     <<: *default-big-component-resources
+  compiler:
+    <<: *default-special-component-resources
   admin:
-    <<: *default-big-component-resources
+    <<: *default-special-component-resources
 
 nodeSelector: []
 
@@ -100,9 +114,11 @@ volumes:
   web: []
   webapi: []
   webwcf: []
+  dashboard: []
   backend: []
   server: []
   scheduler: []
+  compiler: []
   admin: []
 
 envs:
@@ -111,9 +127,11 @@ envs:
   web: []
   webapi: []
   webwcf: []
+  dashboard: []
   backend: []
   server: []
   scheduler: []
+  compiler: []
   admin: []
 
 args:
@@ -122,9 +140,11 @@ args:
   web: []
   webapi: []
   webwcf: []
+  dashboard: []
   backend: []
   server: []
   scheduler: []
+  compiler: []
   admin: []
 
 healthcheck:

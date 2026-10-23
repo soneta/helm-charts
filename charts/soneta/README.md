@@ -114,6 +114,8 @@ appsettings:
         commhub:
           enabled: true
           #inprocess: true  # odkomentować, aby uruchomić w podzie orchestratora
+        dashboard:
+          enabled: true
         web:
           enabled: true
           #replicas: 2  # odkomentować, aby ustawić liczbę replik web'a
@@ -135,6 +137,31 @@ dblist: |-
     </MsSqlDatabase>
   </DatabaseCollection>
 ```
+
+- **Aspire Dashboard zarządzany przez orkiestrator (internal):**
+
+```yaml
+# values.yaml
+appsettings:
+  orchestrator:
+    kubernetes:
+      composition:
+        dashboard:
+          enabled: true
+
+# domyślny obraz dashboardu
+image:
+  dashboard: mcr.microsoft.com/dotnet/aspire-dashboard:13
+```
+
+Po włączeniu komponentu `dashboard` chart:
+- publikuje komponent dashboard jako szablon orkiestratora,
+- ustawia wewnętrzny (unsecured) tryb połączenia z resource service orkiestratora,
+- udostępnia porty usługi dashboard:
+  - `80` (UI, target `18888`),
+  - `4317` (OTLP/gRPC, target `18889`),
+  - `4318` (OTLP/HTTP, target `18890`),
+- ustawia dla pozostałych komponentów eksport telemetryczny OTLP na `http://<release>-soneta-dashboard:4317`.
 
 - **Nadpisanie zasobów dla serwera:**
 

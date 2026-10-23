@@ -133,9 +133,7 @@ Other
 {{- end -}}
 
 {{- define "soneta.admin.command" -}}
-{{- if include "soneta.isLinux" (list . "admin") -}}["tail", "-f", "/dev/null"]
-{{- else -}}["cmd.exe", "/c", "timeout /t -1"]
-{{- end -}}
+["dotnet", "dbmgr.dll", "pause"]
 {{- end -}}
 
 {{- define "soneta.server.command" -}}
@@ -248,6 +246,15 @@ c:\\config\\dblist.xml
 
 {{- define "soneta.scheduler.command" -}}
 {{- if include "soneta.isNet" . -}}["dotnet", "scheduler.dll"]
+{{- else -}}
+    {{- if eq .Values.image.product "standard"  }}[ "SonetaServer.exe" ]
+        {{- else -}}[ "SonetaServerPremium.exe" ]
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.compiler.command" -}}
+{{- if include "soneta.isNet" . -}}["dotnet", "compiler.dll"]
 {{- else -}}
     {{- if eq .Values.image.product "standard"  }}[ "SonetaServer.exe" ]
         {{- else -}}[ "SonetaServerPremium.exe" ]
@@ -451,6 +458,12 @@ command: ["dotnet", "webwcf.dll"]
 {{- end -}}
 {{- end -}}
 
+{{- define "soneta.isDashboard" -}}
+{{- if ((((((.Values.appsettings).orchestrator).kubernetes).composition).dashboard).enabled) -}}
+  true
+{{- end -}}
+{{- end -}}
+
 {{- define "soneta.isRouterInProcess" -}}
 {{- if and (include "soneta.isRouter" .) ((((((.Values.appsettings).orchestrator).kubernetes).composition).router).inprocess) -}}
   true
@@ -471,13 +484,27 @@ http://{{ include "soneta.fullname" $args }}:80
 
 {{- define "soneta.commhubendpoint" -}}
 {{- $args := "" -}}
-{{- if include "soneta.isCommHub" . -}}
+{{- if not (include "soneta.isOrchestrator" .) -}}
+{{ include "soneta.fullname" (list . "server" "commhub") }}:80
+{{- else if include "soneta.isCommHub" . -}}
   {{- if include "soneta.isCommHubInProcess" . -}}
     {{- $args = list . "orchestrator" "commhub" -}}
   {{- else -}}
     {{- $args = list . "commhub" -}}
   {{- end -}}
 {{ include "soneta.fullname" $args }}:80
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.dashboardendpoint" -}}
+{{- if include "soneta.isDashboard" . -}}
+http://{{ include "soneta.fullname" (list . "dashboard") }}:80
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.dashboard.otlp.grpc.endpoint" -}}
+{{- if include "soneta.isDashboard" . -}}
+http://{{ include "soneta.fullname" (list . "dashboard") }}:4317
 {{- end -}}
 {{- end -}}
 
@@ -520,7 +547,7 @@ http://{{ include "soneta.fullname" $args }}:80
 {{- $component := index . 1 -}}
 {{- $side := include "soneta.side" $component -}}
 {{- $port := 8080 -}}
-{{- if not (has $component (list "commhub" "admin")) -}}
+{{- if not (has $component (list "commhub" "admin" "compiler")) -}}
 {{- $handler := dict "grpc" (dict "port" $port) -}}
 {{- if eq $side "frontend" -}}
 {{- $handler = dict "httpGet" (dict "path" "/healthz" "port" $port) -}}
@@ -555,4 +582,99 @@ http://{{ include "soneta.fullname" $args }}:80
 {{- end -}}
 {{- end -}}
 {{- end -}}
+{{- end -}}
+
+{{- define "soneta.pod.dashboard" -}}
+{{- $component := (list . "dashboard") -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "soneta.fullname" $component }}
+  labels:
+{{ include "soneta.labels" $component | indent 4 }}
+spec:
+  containers:
+    - name: "{{ .Chart.Name }}-dashboard"
+      image: "{{ .Values.image.dashboard }}"
+      imagePullPolicy: IfNotPresent
+{{- with .Values.args.dashboard }}
+      args:
+{{ toYaml . | nindent 8 }}
+{{- end }}
+      env:
+        - name: ASPNETCORE_URLS
+          value: http://+:18888
+        - name: DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
+          value: http://+:18889
+        - name: DOTNET_DASHBOARD_OTLP_HTTP_ENDPOINT_URL
+          value: http://+:18890
+        - name: DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS
+          value: "true"
+        - name: Dashboard__ResourceServiceClient__Url
+          value: http://{{ include "soneta.fullname" (list . "orchestrator" ) }}:80
+        - name: Dashboard__ResourceServiceClient__AuthMode
+          value: Unsecured
+        {{- include "soneta.envs.component" (list . "dashboard") | nindent 8 }}
+      ports:
+        - name: http
+          containerPort: 18888
+          protocol: TCP
+        - name: otlp-grpc
+          containerPort: 18889
+          protocol: TCP
+        - name: otlp-http
+          containerPort: 18890
+          protocol: TCP
+      livenessProbe:
+        tcpSocket:
+          port: http
+        failureThreshold: 3
+        periodSeconds: 5
+      startupProbe:
+        tcpSocket:
+          port: http
+        failureThreshold: 20
+        periodSeconds: 3
+      resources:
+        {{- toYaml (get .Values.resources "dashboard") | nindent 8 }}
+  nodeSelector:
+    kubernetes.io/os: linux
+{{- with .Values.nodeSelector }}
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- with .Values.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- with .Values.tolerations }}
+  tolerations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end -}}
+
+{{- define "soneta.service.dashboard" -}}
+{{- $component := (list . "dashboard") -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "soneta.fullname" $component }}
+  labels:
+{{ include "soneta.labels" $component | indent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 4317
+      targetPort: otlp-grpc
+      protocol: TCP
+      name: otlp-grpc
+    - port: 4318
+      targetPort: otlp-http
+      protocol: TCP
+      name: otlp-http
+  selector:
+{{ include "soneta.labels" $component | indent 4 }}
 {{- end -}}
