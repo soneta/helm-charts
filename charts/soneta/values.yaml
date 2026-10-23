@@ -146,3 +146,16 @@ args:
   scheduler: []
   compiler: []
   admin: []
+
+healthcheck:
+  enabled: true
+  all: {}
+  frontend: {}
+  web: {}
+  webapi: {}
+  webwcf: {}
+  backend: {}
+  server: {}
+  scheduler: {}
+  orchestrator: {}
+  router: {}
