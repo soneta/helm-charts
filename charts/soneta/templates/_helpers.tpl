@@ -101,7 +101,7 @@ Other
 {{- $component := index . 1 -}}
 {{- $image := include "soneta.image.name" . -}}
 {{- $postfix := include "soneta.image.postfix" . -}}
-{{ $.Values.image.repository }}soneta/{{ $image }}.{{ $.Values.image.product}}:{{ $.Values.image.tag }}{{ $postfix }}
+{{ $.Values.image.repository }}{{ $.Values.image.organization | default "soneta" }}/{{ $image }}.{{ $.Values.image.product}}:{{ $.Values.image.tag }}{{ $postfix }}
 {{- end -}}
 
 {{- define "soneta.web.enpointProtocol" -}}
