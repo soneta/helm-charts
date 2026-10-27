@@ -64,8 +64,10 @@ spec:
       {{- end }}
         {{- include (printf "soneta.envs.%s" $side) $ | nindent 8 }}
         {{- include "soneta.envs.component" . |  nindent 8 }}
+      {{- if include "soneta.isOrchestrator" $ }}
         - name: SONETA_OrchestratorEndpoint
           value: http://{{ include "soneta.fullname" (list $ "orchestrator" ) }}:80
+      {{- end }}
         - name: SONETA_EventhubEndpoint
           value: http://{{ include "soneta.fullname" (list $ "orchestrator" ) }}:80
       {{- if and (include "soneta.isOrchestrator" $) (eq $side "frontend") }}
