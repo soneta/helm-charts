@@ -33,3 +33,5 @@ annotations:
         - "Added health check example to README.md"
         - "Default ingress class changed to traefik"
         - "Default image tag changed to 2610.0.1"
+        - "Fixed CommHub endpoint: pods hosting CommHub connect via localhost:8082 instead of their own Service"
+        - "SONETA_OrchestratorEndpoint set only on orchestrator pods"
