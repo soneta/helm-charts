@@ -482,17 +482,27 @@ http://{{ include "soneta.fullname" $args }}:80
 {{- end -}}
 {{- end -}}
 
+{{- /* Args: (list $ $component). A pod hosting CommHub itself must not reach it through its Service:
+       the Service has no endpoints until the pod is Ready, and the pod is not Ready until the client connects. */ -}}
 {{- define "soneta.commhubendpoint" -}}
-{{- $args := "" -}}
-{{- if not (include "soneta.isOrchestrator" .) -}}
-{{ include "soneta.fullname" (list . "server" "commhub") }}:80
-{{- else if include "soneta.isCommHub" . -}}
-  {{- if include "soneta.isCommHubInProcess" . -}}
-    {{- $args = list . "orchestrator" "commhub" -}}
+{{- $ := index . 0 -}}
+{{- $component := index . 1 -}}
+{{- if not (include "soneta.isOrchestrator" $) -}}
+  {{- if eq $component "server" -}}
+localhost:8082
   {{- else -}}
-    {{- $args = list . "commhub" -}}
+{{ include "soneta.fullname" (list $ "server" "commhub") }}:80
   {{- end -}}
-{{ include "soneta.fullname" $args }}:80
+{{- else if include "soneta.isCommHub" $ -}}
+  {{- if include "soneta.isCommHubInProcess" $ -}}
+    {{- if eq $component "orchestrator" -}}
+localhost:8082
+    {{- else -}}
+{{ include "soneta.fullname" (list $ "orchestrator" "commhub") }}:80
+    {{- end -}}
+  {{- else -}}
+{{ include "soneta.fullname" (list $ "commhub") }}:80
+  {{- end -}}
 {{- end -}}
 {{- end -}}
 

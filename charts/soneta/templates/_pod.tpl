@@ -94,7 +94,7 @@ spec:
         - name: SONETA_CommHubClient__Enabled
           value: "true"
         - name: SONETA_CommHubClient__Endpoints__0
-          value: {{ include "soneta.commhubendpoint" $ }}
+          value: {{ include "soneta.commhubendpoint" (list $ $component) }}
       {{- end }}
 {{- if eq $component "orchestrator"}}
 {{- end }}
