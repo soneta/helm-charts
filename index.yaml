@@ -3,6 +3,44 @@ entries:
   soneta:
   - annotations:
       artifacthub.io/changes: |
+        - "Added compiler component (deployment, pod, values, schema)"
+        - "Added optional Aspire Dashboard component (pod, service, OTLP endpoints)"
+        - "Added 2Gi memory limit for compiler and admin pods"
+        - "Added commhub support in simple mode"
+        - "Orchestrator deployment uses Recreate strategy"
+        - "Moved dbmgr pause to admin deployment, requires image 2610.0.0 or newer"
+        - "Health check parameters in values.yaml"
+        - "Optional readiness probe"
+        - "Added health check example to README.md"
+        - "Default ingress class changed to traefik"
+        - "Default image tag changed to 2610.0.1"
+        - "Fixed CommHub endpoint: pods hosting CommHub connect via localhost:8082 instead of their own Service"
+        - "SONETA_OrchestratorEndpoint set only on orchestrator pods"
+      artifacthub.io/containsSecurityUpdates: "false"
+    apiVersion: v2
+    appVersion: '>=2610.0.0'
+    created: "2026-10-29T12:43:34.089031753Z"
+    description: Soneta products Helm chart for Kubernetes
+    digest: dc0539f3d7e60f7a950afb2a642b9f6a679489e8f2fee6bb869883ea4c81604b
+    home: https://enova.pl
+    keywords:
+    - enova
+    - enova365
+    - triva
+    - soneta
+    kubeVersion: '>=1.19.0'
+    maintainers:
+    - name: bartcho
+    - name: chodakq
+    name: soneta
+    sources:
+    - https://github.com/soneta/helm-charts/tree/main/charts/soneta
+    - https://github.com/soneta/helm-charts
+    urls:
+    - https://github.com/soneta/helm-charts/releases/download/soneta-0.6.0/soneta-0.6.0.tgz
+    version: 0.6.0
+  - annotations:
+      artifacthub.io/changes: |
         - "Changed from ClusterRole to Role for RBAC (improved security) - #9"
         - "Reduced orchestrator ServiceAccount permissions to minimum required"
         - "Updated README.md with new database creation demo section"
@@ -327,4 +365,4 @@ entries:
     urls:
     - https://soneta.github.io/helm-charts/soneta-0.2.0.tgz
     version: 0.2.0
-generated: "2025-12-15T13:15:02.630336369Z"
+generated: "2026-10-29T12:43:34.089093459Z"
