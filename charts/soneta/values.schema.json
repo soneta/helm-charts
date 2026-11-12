@@ -144,6 +144,70 @@
                 "readiness": { "$ref": "#/$defs/probe" }
             },
             "additionalProperties": false
+        },
+        "envEntry": {
+            "description": "An environment variable: a scalar (string, number or boolean) becomes its value; a map takes value or valueFrom (not both); null deletes the variable inherited from an earlier level.",
+            "oneOf": [
+                { "type": ["string", "number", "boolean"] },
+                { "type": "null" },
+                {
+                    "type": "object",
+                    "properties": {
+                        "value": { "type": ["string", "number", "boolean", "null"] },
+                        "valueFrom": { "type": ["object", "null"], "description": "Kubernetes EnvVarSource" }
+                    },
+                    "additionalProperties": false
+                }
+            ]
+        },
+        "envLevel": {
+            "description": "Environment variables of one level, keyed by name (preferred). A list of EnvVar objects is deprecated.",
+            "oneOf": [
+                { "type": "object", "additionalProperties": { "$ref": "#/$defs/envEntry" } },
+                { "type": "array", "deprecated": true, "items": { "type": "object" } },
+                { "type": "null" }
+            ]
+        },
+        "volumeEntry": {
+            "description": "A volume (spec present) or a mount (mountPath). A scalar is a mountPath on default-pvc. Fields are replaced one by one over earlier levels; null unsets a field.",
+            "oneOf": [
+                { "type": ["string", "number"] },
+                { "type": "null" },
+                {
+                    "type": "object",
+                    "properties": {
+                        "name": { "type": ["string", "null"] },
+                        "mountPath": { "type": ["string", "null"] },
+                        "subPath": { "type": ["string", "null"] },
+                        "spec": { "type": ["object", "null"], "description": "Kubernetes volume specification" }
+                    },
+                    "additionalProperties": false
+                }
+            ]
+        },
+        "volumeLevel": {
+            "description": "Volumes and mounts of one level, keyed by id (preferred). A list of volume objects is deprecated.",
+            "oneOf": [
+                { "type": "object", "additionalProperties": { "$ref": "#/$defs/volumeEntry" } },
+                { "type": "array", "deprecated": true, "items": { "type": "object" } },
+                { "type": "null" }
+            ]
+        },
+        "argsEntry": {
+            "description": "A startup argument (string or number) or a list of them; null deletes the argument inherited from an earlier level.",
+            "oneOf": [
+                { "type": ["string", "number"] },
+                { "type": "array", "items": { "type": ["string", "number"] } },
+                { "type": "null" }
+            ]
+        },
+        "argsLevel": {
+            "description": "Startup arguments of one level, keyed by id (sorted within a level). A list of strings is deprecated.",
+            "oneOf": [
+                { "type": "object", "additionalProperties": { "$ref": "#/$defs/argsEntry" } },
+                { "type": "array", "deprecated": true, "items": { "type": ["string", "number"] } },
+                { "type": "null" }
+            ]
         }
     },
     "type": "object",
@@ -340,292 +404,63 @@
 
         "volumes": {
             "type": "object",
-            "description": "Volume definitions mounted to pods. Allows mounting host directories or other volume types to selected components (e.g., backend, frontend, web, webapi). Each entry contains a name, mount path, and volume specification. Example: { all: [ { name: 'dotmemory', mountPath: '/dotmemory', spec: { hostPath: { path: '/run/desktop/mnt/host/c/...', type: 'Directory' } } } ] }",
+            "description": "Volumes and mounts per level (all -> frontend|backend -> component). Example: { all: { authentication: { mountPath: /auth, subPath: tokenkey, spec: { csi: { driver: file.csi.azure.com } } } } }",
             "properties": {
-                "all": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                },
-                "frontend:": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                },
-                "backend": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                },
-                "web": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                },
-                "webapi": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                },
-                "webwcf": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                },
-                "dashboard": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                },
-                "server": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                },
-                "scheduler": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                },
-                "compiler": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "mountPath": {
-                            "type": "string"
-                        },
-                        "spec": {
-                            "type":"object",
-                            "description": "Kubernetes volume specification"
-                        }
-                    }
-                }
-            }  
+                "all": { "$ref": "#/$defs/volumeLevel" },
+                "frontend": { "$ref": "#/$defs/volumeLevel" },
+                "backend": { "$ref": "#/$defs/volumeLevel" },
+                "web": { "$ref": "#/$defs/volumeLevel" },
+                "webapi": { "$ref": "#/$defs/volumeLevel" },
+                "webwcf": { "$ref": "#/$defs/volumeLevel" },
+                "dashboard": { "$ref": "#/$defs/volumeLevel" },
+                "server": { "$ref": "#/$defs/volumeLevel" },
+                "scheduler": { "$ref": "#/$defs/volumeLevel" },
+                "compiler": { "$ref": "#/$defs/volumeLevel" },
+                "admin": { "$ref": "#/$defs/volumeLevel" },
+                "orchestrator": { "$ref": "#/$defs/volumeLevel" },
+                "router": { "$ref": "#/$defs/volumeLevel" },
+                "commhub": { "$ref": "#/$defs/volumeLevel" }
+            }
         },
-
         "envs": {
             "type": "object",
-            "description": "Set of environment variables passed to pods, divided by component. Example: { all: [ { name: 'DOTNET_USE_POLLING_FILE_WATCHER', value: '1' } ] }",
+            "description": "Environment variables per level (all -> frontend|backend -> component). Example: { all: { TZ: Europe/Warsaw } }",
             "properties": {
-                "all": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "frontend:": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "backend": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "web": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "webapi": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "webwcf": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "dashboard": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "server": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "scheduler": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "compiler": {
-                    "type": "array",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    }
-                }
+                "all": { "$ref": "#/$defs/envLevel" },
+                "frontend": { "$ref": "#/$defs/envLevel" },
+                "backend": { "$ref": "#/$defs/envLevel" },
+                "web": { "$ref": "#/$defs/envLevel" },
+                "webapi": { "$ref": "#/$defs/envLevel" },
+                "webwcf": { "$ref": "#/$defs/envLevel" },
+                "dashboard": { "$ref": "#/$defs/envLevel" },
+                "server": { "$ref": "#/$defs/envLevel" },
+                "scheduler": { "$ref": "#/$defs/envLevel" },
+                "compiler": { "$ref": "#/$defs/envLevel" },
+                "admin": { "$ref": "#/$defs/envLevel" },
+                "orchestrator": { "$ref": "#/$defs/envLevel" },
+                "router": { "$ref": "#/$defs/envLevel" },
+                "commhub": { "$ref": "#/$defs/envLevel" }
             }
         },
-
         "args": {
             "type": "object",
-            "description": "Startup arguments passed to containers of individual components. Example: { web: ['--urls', 'http://*:8080'] }",
+            "description": "Startup arguments per level (all -> frontend|backend -> component); dashboard reads only args.dashboard. Example: { web: { 10-urls: [--urls, 'http://*:8080'] } }",
             "properties": {
-                "frontend": { "type": "array", "items": {"type": "string"} },
-                "web": { "type": "array", "items": {"type": "string"} },
-                "webapi": { "type": "array", "items": {"type": "string"} },
-                "webwcf": { "type": "array", "items": {"type": "string"} },
-                "dashboard": { "type": "array", "items": {"type": "string"} },
-                "backend": { "type": "array", "items": {"type": "string"} },
-                "server": { "type": "array", "items": {"type": "string"} },
-                "scheduler": { "type": "array", "items": {"type": "string"} },
-                "compiler": { "type": "array", "items": {"type": "string"} }
+                "all": { "$ref": "#/$defs/argsLevel" },
+                "frontend": { "$ref": "#/$defs/argsLevel" },
+                "backend": { "$ref": "#/$defs/argsLevel" },
+                "web": { "$ref": "#/$defs/argsLevel" },
+                "webapi": { "$ref": "#/$defs/argsLevel" },
+                "webwcf": { "$ref": "#/$defs/argsLevel" },
+                "dashboard": { "$ref": "#/$defs/argsLevel" },
+                "server": { "$ref": "#/$defs/argsLevel" },
+                "scheduler": { "$ref": "#/$defs/argsLevel" },
+                "compiler": { "$ref": "#/$defs/argsLevel" },
+                "admin": { "$ref": "#/$defs/argsLevel" },
+                "orchestrator": { "$ref": "#/$defs/argsLevel" },
+                "router": { "$ref": "#/$defs/argsLevel" },
+                "commhub": { "$ref": "#/$defs/argsLevel" }
             }
-        } 
+        }
     }
 }
