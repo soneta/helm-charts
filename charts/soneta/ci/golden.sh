@@ -154,6 +154,12 @@ if [ $? -ne 0 ] && grep -q "secrets must be a map (preferred) or a list (depreca
 render "$NEW" neg-tol --skip-schema-validation --set tolerations=oops
 if [ $? -ne 0 ] && grep -q "tolerations must be a map" "$OUT/neg-tol.err"; then pass "negative: scalar tolerations fails"; else fail "negative: scalar tolerations should fail"; fi
 
+# nodeSelector (intentional fix, shown separately from the golden set): labels are rendered as the pod's nodeSelector,
+# not the whole root values dump that 0.6.0 emitted (`toYaml $` inside `with`)
+render "$NEW" nodeselector -f "$V/base.yaml" --set nodeSelector.disktype=ssd -s templates/deployment-server.yaml
+has "$OUT/nodeselector.yaml" "disktype: ssd" "nodeSelector map is rendered on pods"
+hasnot "$OUT/nodeselector.yaml" "dblist:" "nodeSelector renders labels only (no root values dump)"
+
 # lint
 # the chart requires dblist (or listaBazDanych) in every render, so every lint run includes base.yaml
 for f in "$V/base.yaml" "$V/legacy-full.yaml" "$V/map-eq.yaml"; do

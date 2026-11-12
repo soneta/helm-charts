@@ -96,7 +96,7 @@ resources:
   admin:
     <<: *default-special-component-resources
 
-nodeSelector: []
+nodeSelector: {}
 
 # Pod tolerations keyed by any id (preferred). A list is still accepted but deprecated.
 # No default here: a default table would make Helm ignore a list in an overlay.

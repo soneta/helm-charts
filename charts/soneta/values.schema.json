@@ -398,8 +398,11 @@
         },
 
         "nodeSelector": {
-            "type": "array",
-            "description": "List of Kubernetes node selectors on which pods should be scheduled."
+            "description": "Node selector labels (key: value) on which pods should be scheduled. An empty list is accepted for compatibility.",
+            "oneOf": [
+                { "type": "object", "additionalProperties": { "type": "string" } },
+                { "type": "array", "deprecated": true, "maxItems": 0 }
+            ]
         },
 
         "tolerations": {

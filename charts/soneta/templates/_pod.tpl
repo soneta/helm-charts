@@ -118,7 +118,7 @@ spec:
   nodeSelector:
     kubernetes.io/os: {{ $os }}
 {{- with $.Values.nodeSelector }}
-    {{- toYaml $ | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
 {{- end }}
 {{- with $.Values.affinity }}
   affinity:
