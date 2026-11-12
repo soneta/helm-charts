@@ -1,0 +1,25 @@
+secrets:
+  afs-secret:
+    data:
+      a: "x"
+      b: "1000000"
+  empty-secret:
+    data: {}
+pvcs:
+  extra:
+    spec:
+      accessModes: [ReadWriteOnce]
+      resources:
+        requests:
+          storage: 1Gi
+tolerations:
+  dedicated:
+    key: dedicated
+    operator: Equal
+    value: soneta
+    effect: NoSchedule
+  spot:
+    key: spot
+    operator: Exists
+    effect: NoSchedule
+    tolerationSeconds: 300

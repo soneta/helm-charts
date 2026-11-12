@@ -124,9 +124,9 @@ spec:
   affinity:
     {{- toYaml . | nindent 4 }}
 {{- end }}
-{{- with $.Values.tolerations }}
+{{- with include "soneta.tolerations" (list $.Values.tolerations) }}
   tolerations:
-    {{- toYaml . | nindent 4 }}
+    {{- . | nindent 4 }}
 {{- end }}
 {{- if eq $component "orchestrator"}}
   serviceAccountName: {{ include "soneta.fullname" . }}

@@ -135,6 +135,25 @@ helm install rel "$NEW" --dry-run=client -f "$V/base.yaml" -f "$V/map-eq.yaml" >
 has "$OUT/notes-legacy.txt" "WARNING: deprecated list values found" "NOTES warns for legacy lists"
 hasnot "$OUT/notes-map.txt" "WARNING: deprecated list values" "NOTES silent for maps"
 
+# secrets, pvcs, tolerations: the map form renders exactly like the list form; null deletes a single item
+render "$NEW" sec-legacy -f "$V/base.yaml" -f "$V/sec-legacy.yaml"
+render "$NEW" sec-map -f "$V/base.yaml" -f "$V/sec-map.yaml"
+if diff "$OUT/sec-legacy.yaml" "$OUT/sec-map.yaml" >"$OUT/sec.diff"; then pass "secrets/pvcs/tolerations: map == list"; else fail "secrets/pvcs/tolerations: map differs from list"; head -20 "$OUT/sec.diff"; fi
+render "$NEW" sec-null -f "$V/base.yaml" -f "$V/sec-map.yaml" -f "$V/sec-null.yaml"
+hasnot "$OUT/sec-null.yaml" "name: empty-secret" "null deletes a secret"
+hasnot "$OUT/sec-null.yaml" "name: extra" "null deletes a pvc"
+hasnot "$OUT/sec-null.yaml" "tolerationSeconds: 300" "null deletes a toleration"
+has "$OUT/sec-null.yaml" "name: afs-secret" "secret kept when another is deleted"
+has "$OUT/sec-null.yaml" "effect: NoSchedule" "dedicated toleration kept"
+render "$NEW" sec-setfmt -f "$V/base.yaml" --set secrets.afs.data.k=v --set-json 'tolerations.t1={"key":"a","operator":"Exists"}' --set pvcs.p.spec.resources.requests.storage=1Gi --set-json 'pvcs.p.spec.accessModes=["ReadWriteOnce"]'
+has "$OUT/sec-setfmt.yaml" "name: afs" "--set secret map entry"
+has "$OUT/sec-setfmt.yaml" "k: dg==" "--set secret data value (base64 of v)"
+has "$OUT/sec-setfmt.yaml" "key: a" "--set-json toleration"
+render "$NEW" neg-secrets --skip-schema-validation --set secrets=oops
+if [ $? -ne 0 ] && grep -q "secrets must be a map (preferred) or a list (deprecated)" "$OUT/neg-secrets.err"; then pass "negative: scalar secrets fails"; else fail "negative: scalar secrets should fail"; fi
+render "$NEW" neg-tol --skip-schema-validation --set tolerations=oops
+if [ $? -ne 0 ] && grep -q "tolerations must be a map" "$OUT/neg-tol.err"; then pass "negative: scalar tolerations fails"; else fail "negative: scalar tolerations should fail"; fi
+
 # lint
 # the chart requires dblist (or listaBazDanych) in every render, so every lint run includes base.yaml
 for f in "$V/base.yaml" "$V/legacy-full.yaml" "$V/map-eq.yaml"; do

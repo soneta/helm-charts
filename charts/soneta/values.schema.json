@@ -145,6 +145,65 @@
             },
             "additionalProperties": false
         },
+        "toleration": {
+            "type": ["object", "null"],
+            "description": "A pod toleration (key, operator, value, effect, tolerationSeconds). Null deletes it in a map.",
+            "properties": {
+                "key": { "type": "string" },
+                "operator": { "type": "string", "enum": ["Exists", "Equal"] },
+                "value": { "type": "string" },
+                "effect": { "type": "string", "enum": ["NoSchedule", "PreferNoSchedule", "NoExecute"] },
+                "tolerationSeconds": { "type": "integer" }
+            }
+        },
+        "tolerationsLevel": {
+            "description": "Pod tolerations keyed by any id (preferred). A list is deprecated.",
+            "oneOf": [
+                { "type": "object", "additionalProperties": { "$ref": "#/$defs/toleration" } },
+                { "type": "array", "deprecated": true, "items": { "$ref": "#/$defs/toleration" } },
+                { "type": "null" }
+            ]
+        },
+        "secretData": {
+            "description": "Secret data keyed by key (preferred): key: value. A list of {key, value} is deprecated.",
+            "oneOf": [
+                { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean", "null"] } },
+                { "type": "array", "deprecated": true, "items": { "type": "object", "properties": { "key": { "type": "string" }, "value": { "type": ["string", "number", "boolean"] } } } },
+                { "type": "null" }
+            ]
+        },
+        "secret": {
+            "type": ["object", "null"],
+            "description": "A Kubernetes Opaque secret. Null deletes it in a map.",
+            "properties": {
+                "name": { "type": "string", "description": "Only in the deprecated list form (the map key is the name)." },
+                "data": { "$ref": "#/$defs/secretData" }
+            }
+        },
+        "secretsLevel": {
+            "description": "Secrets keyed by name (preferred). A list of {name, data} is deprecated.",
+            "oneOf": [
+                { "type": "object", "additionalProperties": { "$ref": "#/$defs/secret" } },
+                { "type": "array", "deprecated": true, "items": { "$ref": "#/$defs/secret" } },
+                { "type": "null" }
+            ]
+        },
+        "pvc": {
+            "type": ["object", "null"],
+            "description": "A PersistentVolumeClaim. Null deletes it in a map.",
+            "properties": {
+                "name": { "type": "string", "description": "Only in the deprecated list form (the map key is the name)." },
+                "spec": { "$ref": "#/$defs/pvcSpec" }
+            }
+        },
+        "pvcsLevel": {
+            "description": "Extra PersistentVolumeClaims keyed by name (preferred). A list of {name, spec} is deprecated.",
+            "oneOf": [
+                { "type": "object", "additionalProperties": { "$ref": "#/$defs/pvc" } },
+                { "type": "array", "deprecated": true, "items": { "$ref": "#/$defs/pvc" } },
+                { "type": "null" }
+            ]
+        },
         "envEntry": {
             "description": "An environment variable: a scalar (string, number or boolean) becomes its value; a map takes value or valueFrom (not both); null deletes the variable inherited from an earlier level.",
             "oneOf": [
@@ -344,8 +403,16 @@
         },
 
         "tolerations": {
-            "type": "array",
-            "description": "List of pod tolerations, allowing scheduling on nodes with specific taints."
+            "description": "Pod tolerations, allowing scheduling on nodes with specific taints. A map keyed by any id (preferred); a list is deprecated.",
+            "$ref": "#/$defs/tolerationsLevel"
+        },
+        "secrets": {
+            "description": "Kubernetes Opaque secrets keyed by name (preferred). Example: { afs-secret: { data: { key: value } } }.",
+            "$ref": "#/$defs/secretsLevel"
+        },
+        "pvcs": {
+            "description": "Extra PersistentVolumeClaims keyed by name (preferred). Example: { extra: { spec: { ... } } }.",
+            "$ref": "#/$defs/pvcsLevel"
         },
 
         "affinity": {
