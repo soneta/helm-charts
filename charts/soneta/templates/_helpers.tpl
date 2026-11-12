@@ -168,32 +168,10 @@ Other
 {{- get $paths . -}}
 {{- end -}}
 
-{{- define "soneta.toYaml" -}}
-  {{- if . }}
-{{ toYaml . }}
-  {{- end }}
-{{- end -}}
-
-{{- define "soneta.toYaml.component" -}}
-{{- $ := index . 0 -}}
-{{- $component := index . 1 -}}
-{{- include "soneta.toYaml" (get $ "all" ) }}
-{{- include "soneta.toYaml" (get $ (include "soneta.side" $component)) }}
-{{- include "soneta.toYaml" (get $ $component) }}
-{{- end -}}
-
 {{- define "soneta.args.component" -}}
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
-{{- with $.Values.args -}}
-{{- include "soneta.toYaml.component" (list . $component) -}}
-{{- end -}}
-{{- end -}}
-
-{{- define "soneta.args" -}}
-  {{- if . }}
-{{ toYaml . }}
-  {{- end }}
+{{- include "soneta.layered" (list $.Values.args (list "all" (include "soneta.side" $component) $component) "args") -}}
 {{- end -}}
 
 {{- define "soneta.envs.component" -}}
@@ -202,15 +180,7 @@ Other
 {{- if (has $component (list "server" "scheduler" "admin")) -}}
 {{- include "soneta.envs.dbconfig" $ -}}
 {{- end -}}
-{{- with $.Values.envs -}}
-{{- include "soneta.toYaml.component" (list . $component) -}}
-{{- end -}}
-{{- end -}}
-
-{{- define "soneta.envs" -}}
-  {{- if . }}
-{{ toYaml . }}
-  {{- end }}
+{{- include "soneta.layered" (list $.Values.envs (list "all" (include "soneta.side" $component) $component) "envs") -}}
 {{- end -}}
 
 {{- define "soneta.dbconfig" -}}
@@ -226,22 +196,6 @@ c:\\config\\dblist.xml
 - name: SONETA_DBCONFIG
   value: {{ include "soneta.dbconfig" . }}
 {{- end -}}
-{{- end -}}
-
-{{- define "soneta.args.dbconfig" -}}
-{{- if not (include "soneta.isNet" .) }}
-- /dbconfig={{ include "soneta.dbconfig" . }}
-{{- end -}}
-{{- end -}}
-
-{{- define "soneta.server.args" -}}
-  {{- if not (include "soneta.isNet" .) }}
-- /console
-- /noscheduler
-  {{- end -}} 
-  {{ include "soneta.args.dbconfig" . }}
-  {{- include "soneta.args" .Values.args.backend -}}
-  {{- include "soneta.args" .Values.args.server -}}
 {{- end -}}
 
 {{- define "soneta.scheduler.command" -}}
@@ -260,17 +214,6 @@ c:\\config\\dblist.xml
         {{- else -}}[ "SonetaServerPremium.exe" ]
     {{- end -}}
 {{- end -}}
-{{- end -}}
-
-{{- define "soneta.scheduler.args" -}}
-  {{- if include "soneta.isNet" . -}}
-- --mode=Daemon
-  {{- else -}}
-- /console
-  {{- end -}}
-  {{ include "soneta.args.dbconfig" . }}
-  {{- include "soneta.args" .Values.args.backend -}}
-  {{- include "soneta.args" .Values.args.scheduler -}}
 {{- end -}}
 
 {{- define "soneta.web.commands" -}}
@@ -310,10 +253,7 @@ command: ["dotnet", "webwcf.dll"]
 {{- $ := index . 0 -}}
 {{- $component := index . 1 -}}
 {{- $type := index . 2 -}}
-{{- $template := printf "soneta.%s" $type -}}
-{{- include $template (get $.Values.volumes "all" ) }}
-{{- include $template (get $.Values.volumes (include "soneta.side" $component)) }}
-{{- include $template (get $.Values.volumes $component) }}
+{{- include "soneta.layered" (list $.Values.volumes (list "all" (include "soneta.side" $component) $component) $type) -}}
 {{- end -}}
 
 {{- define "soneta.volumeMounts.component" -}}
@@ -359,31 +299,6 @@ command: ["dotnet", "webwcf.dll"]
 {{ include "soneta.volumes.dblist" $ -}}
 {{- end -}}
 {{- include "soneta.volumes.abstract" (list $ $component "volumes") }}
-{{- end -}}
-
-{{- define "soneta.volumes" -}}
-{{- if . }}
-{{- range $i, $val := . }}
-{{- if $val.name }}
-- name: {{ $val.name }}
-{{- toYaml $val.spec | nindent 2 }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end -}}
-
-{{- define "soneta.volumeMounts" -}}
-{{- if . }}
-{{- range $i, $val := . }}
-{{- if $val.mountPath }}
-- name: {{ $val.name | default "default-pvc" }}
-  mountPath: {{ $val.mountPath | quote }}
-{{- if $val.subPath }}
-  subPath: {{ $val.subPath | quote }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
 {{- end -}}
 
 {{- define "soneta.volumes.dblist" -}}
@@ -607,9 +522,9 @@ spec:
     - name: "{{ .Chart.Name }}-dashboard"
       image: "{{ .Values.image.dashboard }}"
       imagePullPolicy: IfNotPresent
-{{- with .Values.args.dashboard }}
+{{- with include "soneta.layered" (list .Values.args (list "dashboard") "args") }}
       args:
-{{ toYaml . | nindent 8 }}
+{{ . | trimPrefix "\n" | nindent 8 }}
 {{- end }}
       env:
         - name: ASPNETCORE_URLS
@@ -687,4 +602,174 @@ spec:
       name: otlp-http
   selector:
 {{ include "soneta.labels" $component | indent 4 }}
+{{- end -}}
+
+{{/*
+soneta.layered - renders one layered value (levels in order, later levels win): $root, $levels, $kind.
+  $kind: envs | args | volumes | volumeMounts (volumes and volumeMounts share one merge).
+A level is either:
+  - a LIST (legacy, deprecated): items are appended verbatim, duplicates kept;
+  - a MAP keyed by item name (preferred): an item replaces the earlier item with the same key in place
+    (a legacy list item matches by its `name`, first match only), a null value deletes it, and new keys are
+    appended in sorted order (Go templates range maps sorted).
+Items live in slots ("%06d" index) so replacing and deleting keep their place. Dicts from .Values are never
+modified: every merged item is a fresh dict.
+*/}}
+{{- define "soneta.layered" -}}
+{{- $root := index . 0 | default dict -}}
+{{- $levels := index . 1 -}}
+{{- $kind := index . 2 -}}
+{{- $vol := has $kind (list "volumes" "volumeMounts") -}}
+{{- $label := ternary "volumes" $kind $vol -}}
+{{- $slots := dict -}}
+{{- $byKey := dict -}}
+{{- $n := 0 -}}
+{{- range $level := $levels -}}
+{{- $v := get $root $level -}}
+{{- if kindIs "slice" $v -}}
+{{- range $e := $v -}}
+{{- $s := printf "%06d" $n -}}
+{{- $n = add1 $n -}}
+{{- $key := "" -}}
+{{- if kindIs "map" $e -}}{{- $key = get $e "name" | default "" | toString -}}{{- end -}}
+{{- $_ := set $slots $s (dict "key" $key "value" $e "map" false) -}}
+{{- if and $key (not (hasKey $byKey $key)) -}}{{- $_ := set $byKey $key $s -}}{{- end -}}
+{{- end -}}
+{{- else if kindIs "map" $v -}}
+{{- range $k, $e := $v -}}
+{{- if eq $k "" -}}{{- fail (printf "%s.%s: empty item name" $label $level) -}}{{- end -}}
+{{- $s := get $byKey $k -}}
+{{- if kindIs "invalid" $e -}}
+  {{- if $s -}}{{- $_ := unset $slots $s -}}{{- end -}}
+  {{- $_ := unset $byKey $k -}}
+{{- else -}}
+  {{- $prev := dict -}}
+  {{- if $s -}}{{- $prev = get (get $slots $s) "value" -}}{{- end -}}
+  {{- $new := dict -}}
+  {{- if eq $kind "envs" -}}
+    {{- $_ := set $new "name" $k -}}
+    {{- if kindIs "map" $e -}}
+      {{- $hasV := not (kindIs "invalid" (index $e "value")) -}}
+      {{- $hasF := not (kindIs "invalid" (index $e "valueFrom")) -}}
+      {{- if and $hasV $hasF -}}{{- fail (printf "envs.%s: %s sets both value and valueFrom (set the unwanted one to null)" $level $k) -}}{{- end -}}
+      {{- if $hasF -}}
+        {{- $_ := set $new "valueFrom" (index $e "valueFrom") -}}
+      {{- else if $hasV -}}
+        {{- $_ := set $new "value" (include "soneta.layered.scalar" (index $e "value")) -}}
+      {{- end -}}
+    {{- else if kindIs "slice" $e -}}
+      {{- fail (printf "envs.%s: %s must be a scalar or a map" $level $k) -}}
+    {{- else -}}
+      {{- $_ := set $new "value" (include "soneta.layered.scalar" $e) -}}
+    {{- end -}}
+  {{- else if eq $kind "args" -}}
+    {{- $new = list -}}
+    {{- if kindIs "slice" $e -}}
+      {{- range $e -}}{{- $new = append $new (include "soneta.layered.scalar" .) -}}{{- end -}}
+    {{- else if kindIs "map" $e -}}
+      {{- fail (printf "args.%s: %s must be a string or a list of strings" $level $k) -}}
+    {{- else -}}
+      {{- $new = list (include "soneta.layered.scalar" $e) -}}
+    {{- end -}}
+  {{- else if $vol -}}
+    {{- $fields := $e -}}
+    {{- if not (kindIs "map" $e) -}}{{- $fields = dict "mountPath" $e -}}{{- end -}}
+    {{- if kindIs "map" $prev -}}{{- range $f, $fv := $prev -}}{{- $_ := set $new $f $fv -}}{{- end -}}{{- end -}}
+    {{- range $f := list "name" "mountPath" "subPath" "spec" -}}
+      {{- if hasKey $fields $f -}}
+        {{- if kindIs "invalid" (index $fields $f) -}}
+          {{- $new = omit $new $f -}}
+        {{- else -}}
+          {{- $_ := set $new $f (index $fields $f) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if $s -}}
+    {{- $_ := set $slots $s (dict "key" $k "value" $new "map" true) -}}
+  {{- else -}}
+    {{- $s = printf "%06d" $n -}}
+    {{- $n = add1 $n -}}
+    {{- $_ := set $slots $s (dict "key" $k "value" $new "map" true) -}}
+    {{- $_ := set $byKey $k $s -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+{{- else if $v -}}
+  {{- fail (printf "%s.%s must be a map (preferred) or a list (deprecated)" $label $level) -}}
+{{- end -}}
+{{- end -}}
+{{- $out := list -}}
+{{- range $s, $it := $slots -}}{{- $out = append $out $it -}}{{- end -}}
+{{- include (printf "soneta.layered.%s" $kind) $out -}}
+{{- end -}}
+
+{{- define "soneta.layered.scalar" -}}
+{{- if kindIs "string" . -}}{{ . }}{{- else -}}{{ toJson . }}{{- end -}}
+{{- end -}}
+
+{{- define "soneta.layered.envs" -}}
+{{- $out := list -}}
+{{- range . -}}{{- $out = append $out .value -}}{{- end -}}
+{{- if $out }}
+{{ toYaml $out }}
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.layered.args" -}}
+{{- $out := list -}}
+{{- range . -}}
+  {{- if kindIs "slice" .value -}}
+    {{- range .value -}}{{- $out = append $out . -}}{{- end -}}
+  {{- else -}}
+    {{- $out = append $out .value -}}
+  {{- end -}}
+{{- end -}}
+{{- if $out }}
+{{ toYaml $out }}
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.layered.volumes" -}}
+{{- $names := dict -}}
+{{- range . -}}
+{{- $val := .value -}}
+{{- $name := "" -}}
+{{- $emit := false -}}
+{{- if .map -}}
+  {{- $name = $val.name | default .key | toString -}}
+  {{- $emit = and $val.spec $name -}}
+{{- else if $val.name -}}
+  {{- $name = $val.name | toString -}}
+  {{- $emit = true -}}
+{{- end -}}
+{{- if $emit -}}
+  {{- if hasKey $names $name -}}
+    {{- if or .map (get $names $name) -}}
+      {{- fail (printf "volumes: %s resolves to volume name %s, already used by another item" .key $name) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $_ := set $names $name (or .map (get $names $name)) -}}
+{{- end -}}
+{{- if $emit }}
+- name: {{ $name }}
+{{- toYaml $val.spec | nindent 2 }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "soneta.layered.volumeMounts" -}}
+{{- range . -}}
+{{- $val := .value -}}
+{{- if $val.mountPath }}
+{{- $mount := $val.name | default "" | toString -}}
+{{- if and (not $mount) $val.spec -}}{{- $mount = .key | toString -}}{{- end -}}
+{{- if not $mount -}}{{- $mount = "default-pvc" -}}{{- end }}
+- name: {{ $mount }}
+  mountPath: {{ $val.mountPath | toString | quote }}
+{{- if $val.subPath }}
+  subPath: {{ $val.subPath | toString | quote }}
+{{- end }}
+{{- end }}
+{{- end -}}
 {{- end -}}

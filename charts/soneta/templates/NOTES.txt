@@ -1,3 +1,12 @@
+{{- $legacy := list -}}
+{{- range $kind := list "envs" "volumes" "args" -}}
+{{- range $lvl, $v := get $.Values $kind -}}
+{{- if and (kindIs "slice" $v) (gt (len $v) 0) -}}{{- $legacy = append $legacy (printf "%s.%s" $kind $lvl) -}}{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- if $legacy }}
+WARNING: deprecated list values found: {{ join ", " $legacy }}. Use a map keyed by item name instead (see README.md, "Migracja z list").
+{{- end }}
 1. Get the application URL by running these commands:
 {{- $component := (list . "web") -}}
 {{- if .Values.ingress.enabled }}

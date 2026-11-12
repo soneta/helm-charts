@@ -1,0 +1,48 @@
+# Map form of legacy-eq.yaml (keys sorted within each level).
+envs:
+  all:
+    TZ: Europe/Warsaw
+  frontend:
+    FRONT: "1"
+  backend:
+    BACK: "2"
+  web:
+    WEBSECRET:
+      valueFrom:
+        secretKeyRef:
+          name: s
+          key: k
+  server:
+    EMPTY: ""
+    NUMLIKE: "1000000"
+  admin:
+    ADM: x
+  scheduler:
+    SCH: "y"
+volumes:
+  all:
+    authentication:
+      mountPath: /home/app/.config/Soneta/Authentication
+      subPath: tokenkey
+      spec:
+        csi:
+          driver: file.csi.azure.com
+          volumeAttributes:
+            shareName: share
+            secretName: afs-secret
+    nameless:
+      mountPath: /home/app/nameless
+  server:
+    scratch:
+      mountPath: /scratch
+      spec:
+        emptyDir: {}
+args:
+  all:
+    00-all: --all-arg
+  server:
+    00-server: --server-arg=1
+  web:
+    00-web: --web
+  dashboard:
+    00-otlp: ["--otlp", "--key=value with spaces"]

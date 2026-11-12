@@ -1,0 +1,22 @@
+envs:
+  all:
+    TZ: Europe/Warsaw
+    KEEP: "1"
+    GONE: "2"
+    SAME: "3"
+  server:
+    SRVONLY: "x"
+    DELME: "y"
+volumes:
+  all:
+    authentication:
+      mountPath: /auth
+      subPath: tokenkey
+      spec:
+        emptyDir: {}
+    logs: /logs
+args:
+  all:
+    10-a: --a=1
+  server:
+    20-b: --b

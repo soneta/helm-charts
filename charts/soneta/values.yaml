@@ -102,44 +102,34 @@ tolerations: []
 
 affinity: {}
 
-volumes:
-  all: []
-  frontend: []
-  web: []
-  webapi: []
-  webwcf: []
-  dashboard: []
-  backend: []
-  server: []
-  scheduler: []
-  compiler: []
-  admin: []
+# Environment variables, volumes and startup arguments, per level:
+#   all -> frontend|backend -> component (a later level overrides an earlier item with the same key).
+# Each level is a map keyed by item name (preferred); a list is still accepted but deprecated.
+# A null value deletes the item inherited from an earlier level.
+# Keys are sorted within a level, so converting a list to a map can reorder env vars.
+envs: {}
+  # all:
+  #   TZ: Europe/Warsaw          # value
+  #   LEGACY_FLAG: null          # deletes LEGACY_FLAG inherited from an earlier level
+  # server:
+  #   SECRET_KEY:
+  #     valueFrom:
+  #       secretKeyRef: {name: my-secret, key: key}
 
-envs:
-  all: []
-  frontend: []
-  web: []
-  webapi: []
-  webwcf: []
-  dashboard: []
-  backend: []
-  server: []
-  scheduler: []
-  compiler: []
-  admin: []
+volumes: {}
+  # all:
+  #   authentication:            # volume name (spec present)
+  #     mountPath: /home/app/.config/Soneta/Authentication
+  #     subPath: tokenkey
+  #     spec:
+  #       csi: {driver: file.csi.azure.com}
+  #   scratch: /scratch          # mount only, on default-pvc
 
-args:
-  all: []
-  frontend: []
-  web: []
-  webapi: []
-  webwcf: []
-  dashboard: []
-  backend: []
-  server: []
-  scheduler: []
-  compiler: []
-  admin: []
+args: {}
+  # web:
+  #   10-urls: ["--urls", "http://*:8080"]
+  # server:
+  #   20-verbose: --verbose
 
 healthcheck:
   enabled: true

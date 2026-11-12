@@ -1,0 +1,12 @@
+appsettings:
+  orchestrator:
+    kubernetes:
+      composition:
+        router:
+          enabled: true
+          inprocess: false
+        commhub:
+          enabled: true
+          inprocess: false
+        dashboard:
+          enabled: true

@@ -1,5 +1,7 @@
 # Soneta Kubernetes Helm Chart
 
+> **Wersja 0.7.0-alpha.1 (alfa).** Zmienne środowiskowe (`envs`), wolumeny (`volumes`) i argumenty (`args`) można podawać jako mapy (zalecane); listy są nadal obsługiwane, ale są przestarzałe.
+
 Funkcjonalność zawarta w tym repozytorium jest w fazie ***beta*** i może być przedmiotem zmian. Funkcjonalność ***beta*** nie podlega gwarancji.
 
 ## Użycie
@@ -85,6 +87,60 @@ Aplikacja jest parametryzowana poprzez plik/pliki z opcją -f, wartości w plika
 helm upgrade sample soneta/soneta -f values1.yaml -f values2.yaml ... --install
 ```
 Wartości można przekazywać również poprzez opcję `--set` jednak poza włączaniem trybu administracyjnego nie jest to zalecane, ponieważ staje się nieczytelne i trudne w utrzymaniu, a dodatkowo pliki mogą być wersjonowane w repozytorium i być przedmiotem audytu.
+
+### Warstwy: `all` -> `frontend`/`backend` -> komponent
+
+Wartości `envs`, `volumes` i `args` są składane w poziomach: `all`, następnie `frontend` lub `backend` (zależnie od komponentu), a na końcu nazwa komponentu (np. `server`). Późniejszy poziom nadpisuje element o tym samym kluczu.
+
+- Element w mapie **zastępuje** element o tym samym kluczu z wcześniejszego poziomu (lub z listy, dopasowanej po `name`).
+- `null` **usuwa** element odziedziczony z wcześniejszego poziomu.
+- Nowe klucze są dodawane na końcu, w kolejności posortowanej po kluczu.
+- Dla `volumes` nadpisanie jest płytkie: `name`, `mountPath`, `subPath` i `spec` są zastępowane osobno; `spec` nie jest scalany wgłąb.
+
+Ponieważ Helm zastępuje listy w całości, pliki można łączyć np. tak:
+
+```console
+helm upgrade sample soneta/soneta -f values.yaml -f values-prod.yaml --install
+```
+
+```yaml
+# values-prod.yaml
+envs:
+  all:
+    TZ: UTC              # zmienia wartość z values.yaml
+    DEBUG_MODE: null     # usuwa zmienną odziedziczoną z values.yaml
+```
+
+### Migracja z list
+
+Listy są nadal przyjmowane (**przestarzałe**) i renderują się identycznie jak dotąd. Zalecany zapis to mapa kluczowana nazwą elementu:
+
+| Lista (przestarzała) | Mapa (zalecana) |
+|---|---|
+| `envs.all: [{name: TZ, value: Europe/Warsaw}]` | `envs.all: {TZ: Europe/Warsaw}` |
+| `envs.server: [{name: X, valueFrom: {...}}]` | `envs.server: {X: {valueFrom: {...}}}` |
+| `volumes.all: [{name: a, mountPath: /a, spec: {...}}]` | `volumes.all: {a: {mountPath: /a, spec: {...}}}` |
+| `volumes.all: [{mountPath: /m}]` (bez nazwy) | `volumes.all: {m: {mountPath: /m}}` |
+| `args.web: ["--urls", "http://*:8080"]` | `args.web: {10-urls: ["--urls", "http://*:8080"]}` |
+
+Uwagi:
+- Przy zamianie listy na mapę **kolejność zmiennych środowiskowych zmienia się** (klucze są sortowane). Pody zostaną więc zrestartowane jednorazowo przy aktualizacji.
+- Wartość `$(VAR)` rozwija się tylko do zmiennych zdefiniowanych **wcześniej** na liście env.
+- Lista na bazie i mapa w **tym samym** poziomie: mapa zastępuje listę w całości (zachowanie Helm). Mapa na **innym** poziomie upsertuje i usuwa elementy listy po nazwie.
+- Chart wypisuje w NOTES ostrzeżenie, gdy wykryje niepuste listy.
+
+### Przykłady `--set`
+
+```console
+helm upgrade sample soneta/soneta -f values.yaml --set envs.all.TZ=UTC
+helm upgrade sample soneta/soneta -f values.yaml --set 'envs.all.My\.Key=wartosc'
+helm upgrade sample soneta/soneta -f values.yaml --set envs.server.TZ=null
+helm upgrade sample soneta/soneta -f values.yaml --set-json 'envs.web.SECRET={"valueFrom":{"secretKeyRef":{"name":"my-secret","key":"password"}}}'
+```
+- `My\.Key` to klucz zawierający kropkę (w powłoce `\.` przekazuje `\.` do Helm).
+- `null` usuwa zmienną odziedziczoną z wcześniejszego poziomu.
+- `--set-json` służy do wartości złożonych (np. `valueFrom`).
+- Uwaga: `--set envs.server.X=...` na liście ustawionej w pliku `-f` zastępuje całą listę (zob. wyżej).
 
 ## Przykłady parametryzacji
 
@@ -184,12 +240,17 @@ resources:
 envs:
   # dla wszystkich komponentów
   all:
-    # DOTNET_USE_POLLING_FILE_WATCHER - Ta zmienna środowiskowa, gdy ustawiona na "1", wymusza na platformie .NET używanie mechanizmu aktywnego sprawdzania zmian w plikach (polling) zamiast domyślnego mechanizmu powiadomień systemowych. Może to być przydatne w środowiskach, gdzie powiadomienia o zmianach plików nie działają poprawnie, np. w kontenerach lub na systemach plików sieciowych.
-    - name: DOTNET_USE_POLLING_FILE_WATCHER
-      value: "1"
-    # TZ - Ta zmienna środowiskowa określa strefę czasową, w której działa aplikacja. Ustawienie jej na "Europe/Warsaw" powoduje, że wszystkie operacje związane z czasem będą wykonywane zgodnie z czasem lokalnym dla Polski.
-    - name: TZ
-      value: Europe/Warsaw
+    # DOTNET_USE_POLLING_FILE_WATCHER - Ta zmienna środowiskowa, gdy ustawiona na "1", wymusza na platformie .NET używanie mechanizmu aktywnego sprawdzania zmian w plikach (polling) zamiast domyślnego mechanizmu powiadomień systemowych.
+    DOTNET_USE_POLLING_FILE_WATCHER: "1"
+    # TZ - strefa czasowa, w której działa aplikacja
+    TZ: Europe/Warsaw
+  server:
+    # wartość z sekretu zamiast wpisanej na sztywno (pole valueFrom zamiast value)
+    SOME_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: my-secret
+          key: password
 ```
 - **Ustawienie paramatrów domyślnego persistent volume claim:**
 
@@ -219,17 +280,30 @@ secrets:
 
 volumes:
   all:
-  # Podstawienie wolumenu dla wszystkich komponentów aplikacji, który będzie montowany w katalogu /home/app/.config/Soneta/Authentication i będzie zawierał plik z kluczami dla tokenów aplikacji
-  - name: authentication
-    mountPath: /home/app/.config/Soneta/Authentication
-    subPath: tokenkey
-    spec:
-      csi:
-        driver: file.csi.azure.com
-        volumeAttributes:
-          shareName: your_share_name
-          secretName: afs-secret
+    # Wolumen dla wszystkich komponentów aplikacji, montowany w katalogu /home/app/.config/Soneta/Authentication (klucz to nazwa wolumenu, bo jest podane `spec`)
+    authentication:
+      mountPath: /home/app/.config/Soneta/Authentication
+      subPath: tokenkey
+      spec:
+        csi:
+          driver: file.csi.azure.com
+          volumeAttributes:
+            shareName: your_share_name
+            secretName: afs-secret
+    # Samo montowanie (bez `spec`) na domyślnym wolumenie PVC; skrót: wartość to ścieżka
+    logs: /home/app/logs
 ```
+
+- **Ustawienie argumentów uruchomieniowych:**
+
+```yaml
+args:
+  web:
+    10-urls: ["--urls", "http://*:8080"]
+  server:
+    20-verbose: --verbose
+```
+Klucze są sortowane w obrębie poziomu. Argumenty dla Aspire Dashboard czytane są wyłącznie z `args.dashboard`.
 
 - **Przykład parametryzacji ingress:**
 
