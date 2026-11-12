@@ -571,9 +571,9 @@ spec:
   affinity:
     {{- toYaml . | nindent 4 }}
 {{- end }}
-{{- with .Values.tolerations }}
+{{- with include "soneta.tolerations" (list .Values.tolerations) }}
   tolerations:
-    {{- toYaml . | nindent 4 }}
+    {{- . | nindent 4 }}
 {{- end }}
 {{- end -}}
 
@@ -702,6 +702,71 @@ modified: every merged item is a fresh dict.
 {{- $out := list -}}
 {{- range $s, $it := $slots -}}{{- $out = append $out $it -}}{{- end -}}
 {{- include (printf "soneta.layered.%s" $kind) $out -}}
+{{- end -}}
+
+{{/*
+soneta.keyed - single-level items (secrets, pvcs) given as a MAP keyed by name (preferred) or a LIST (deprecated).
+  args: (list $value $label). Returns a YAML list of {name, value}, in list order or sorted by key.
+  A list item's name is its `name` field; a map entry's name is its key and a null entry is skipped.
+*/}}
+{{- define "soneta.keyed" -}}
+{{- $v := index . 0 | default dict -}}
+{{- $label := index . 1 -}}
+{{- $out := list -}}
+{{- if kindIs "slice" $v -}}
+  {{- range $e := $v -}}
+    {{- if not (kindIs "map" $e) -}}{{- fail (printf "%s: list items must be maps" $label) -}}{{- end -}}
+    {{- $out = append $out (dict "name" (get $e "name" | default "" | toString) "value" $e) -}}
+  {{- end -}}
+{{- else if kindIs "map" $v -}}
+  {{- range $k, $e := $v -}}
+    {{- if not (kindIs "invalid" $e) -}}{{- $out = append $out (dict "name" $k "value" $e) -}}{{- end -}}
+  {{- end -}}
+{{- else if $v -}}
+  {{- fail (printf "%s must be a map (preferred) or a list (deprecated)" $label) -}}
+{{- end -}}
+{{- toYaml $out -}}
+{{- end -}}
+
+{{/*
+soneta.secret.data - data of one secret as a YAML list of {name (key), value (string)}.
+  args: (list $data). Accepts a LIST of {key, value} (deprecated) or a MAP key -> value (preferred); null entries skipped.
+*/}}
+{{- define "soneta.secret.data" -}}
+{{- $v := index . 0 | default dict -}}
+{{- $out := list -}}
+{{- if kindIs "slice" $v -}}
+  {{- range $e := $v -}}
+    {{- if not (kindIs "map" $e) -}}{{- fail "secrets.data: list items must be maps with key and value" -}}{{- end -}}
+    {{- $out = append $out (dict "name" (get $e "key" | default "" | toString) "value" (get $e "value" | default "" | toString)) -}}
+  {{- end -}}
+{{- else if kindIs "map" $v -}}
+  {{- range $k, $e := $v -}}
+    {{- if not (kindIs "invalid" $e) -}}{{- $out = append $out (dict "name" $k "value" ($e | toString)) -}}{{- end -}}
+  {{- end -}}
+{{- else if $v -}}
+  {{- fail "secrets.<name>.data must be a map (preferred) or a list (deprecated)" -}}
+{{- end -}}
+{{- toYaml $out -}}
+{{- end -}}
+
+{{/*
+soneta.tolerations - pod tolerations as a YAML list, or empty. args: (list $value).
+  A LIST (deprecated) keeps its order; a MAP keyed by any id (preferred) is emitted in key order; null entries are skipped.
+*/}}
+{{- define "soneta.tolerations" -}}
+{{- $v := index . 0 | default dict -}}
+{{- $out := list -}}
+{{- if kindIs "slice" $v -}}
+  {{- $out = $v -}}
+{{- else if kindIs "map" $v -}}
+  {{- range $k, $e := $v -}}
+    {{- if not (kindIs "invalid" $e) -}}{{- $out = append $out $e -}}{{- end -}}
+  {{- end -}}
+{{- else if $v -}}
+  {{- fail "tolerations must be a map (preferred) or a list (deprecated)" -}}
+{{- end -}}
+{{- if $out -}}{{- toYaml $out -}}{{- end -}}
 {{- end -}}
 
 {{- define "soneta.layered.scalar" -}}

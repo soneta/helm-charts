@@ -96,9 +96,22 @@ resources:
   admin:
     <<: *default-special-component-resources
 
-nodeSelector: []
+nodeSelector: {}
 
-tolerations: []
+# Pod tolerations keyed by any id (preferred). A list is still accepted but deprecated.
+# No default here: a default table would make Helm ignore a list in an overlay.
+# tolerations:
+#   dedicated: {key: dedicated, operator: Equal, value: soneta, effect: NoSchedule}
+
+# Kubernetes Opaque secrets keyed by name (preferred). No default.
+# secrets:
+#   afs-secret:
+#     data: {azurestorageaccountname: your_account_name}
+
+# Extra PersistentVolumeClaims keyed by name (preferred). No default.
+# pvcs:
+#   extra:
+#     spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 1Gi}}}
 
 affinity: {}
 
