@@ -4,6 +4,10 @@
 {{- if and (kindIs "slice" $v) (gt (len $v) 0) -}}{{- $legacy = append $legacy (printf "%s.%s" $kind $lvl) -}}{{- end -}}
 {{- end -}}
 {{- end -}}
+{{- range $kind := list "secrets" "pvcs" "tolerations" -}}
+{{- $v := get $.Values $kind -}}
+{{- if and (kindIs "slice" $v) (gt (len $v) 0) -}}{{- $legacy = append $legacy $kind -}}{{- end -}}
+{{- end -}}
 {{- if $legacy }}
 WARNING: deprecated list values found: {{ join ", " $legacy }}. Use a map keyed by item name instead (see README.md, "Migracja z list").
 {{- end }}

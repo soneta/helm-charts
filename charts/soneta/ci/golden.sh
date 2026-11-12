@@ -160,6 +160,11 @@ render "$NEW" nodeselector -f "$V/base.yaml" --set nodeSelector.disktype=ssd -s 
 has "$OUT/nodeselector.yaml" "disktype: ssd" "nodeSelector map is rendered on pods"
 hasnot "$OUT/nodeselector.yaml" "dblist:" "nodeSelector renders labels only (no root values dump)"
 
+helm install rel "$NEW" --dry-run=client -f "$V/base.yaml" -f "$V/sec-legacy.yaml" >"$OUT/notes-sec.txt" 2>&1
+helm install rel "$NEW" --dry-run=client -f "$V/base.yaml" -f "$V/sec-map.yaml" >"$OUT/notes-secmap.txt" 2>&1
+has "$OUT/notes-sec.txt" "deprecated list values found: secrets, pvcs, tolerations" "NOTES warns for legacy secrets/pvcs/tolerations"
+hasnot "$OUT/notes-secmap.txt" "WARNING: deprecated" "NOTES silent for secrets/pvcs/tolerations maps"
+
 # lint
 # the chart requires dblist (or listaBazDanych) in every render, so every lint run includes base.yaml
 for f in "$V/base.yaml" "$V/legacy-full.yaml" "$V/map-eq.yaml"; do
