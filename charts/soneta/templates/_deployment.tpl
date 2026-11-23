@@ -7,8 +7,8 @@ metadata:
   labels:
 {{ include "soneta.labels" . | indent 4 }}
 spec:
-  replicas: {{ $.Values.replicaCount }}
-{{- if eq (index . 1) "orchestrator" }}
+  replicas: {{ if eq (index . 1) "admin" }}1{{ else }}{{ $.Values.replicaCount }}{{ end }}
+{{- if or (eq (index . 1) "orchestrator") (eq (index . 1) "admin") }}
   strategy:
     type: Recreate
 {{- end }}
