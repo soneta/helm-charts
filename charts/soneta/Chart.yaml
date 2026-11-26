@@ -25,6 +25,7 @@ annotations:
         - "Added compiler component (deployment, pod, values, schema)"
         - "Added optional Aspire Dashboard component (pod, service, OTLP endpoints)"
         - "Added 2Gi memory limit for compiler and admin pods"
+        - "Admin pod uses Recreate strategy and always runs a single replica, so two admin pods never run at once"
         - "Added commhub support in simple mode"
         - "Orchestrator deployment uses Recreate strategy"
         - "Moved dbmgr pause to admin deployment, requires image 2610.0.0 or newer"
