@@ -1,0 +1,7 @@
+# null deletes a single-level item: a secret, a pvc and a toleration from sec-map.yaml
+secrets:
+  empty-secret: null
+pvcs:
+  extra: null
+tolerations:
+  spot: null

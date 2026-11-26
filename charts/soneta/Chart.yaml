@@ -1,5 +1,5 @@
 apiVersion: v2
-version: 0.7.0-alpha.1
+version: 0.7.0-alpha.2
 appVersion: ">=2610.0.0"
 kubeVersion: ">=1.19.0"
 name: soneta
@@ -22,6 +22,9 @@ maintainers:
 annotations:
     artifacthub.io/containsSecurityUpdates: "false"
     artifacthub.io/changes: |
+        - "Alpha 0.7.0-alpha.2: secrets, pvcs and tolerations accept maps keyed by name or id (preferred); lists still work but are deprecated"
+        - "Alpha 0.7.0-alpha.2: fixed nodeSelector: it is a map (default {}), and pods render only its labels instead of the whole values object (intentional output change, only when nodeSelector is set)"
+        - "Alpha 0.7.0-alpha.2: NOTES.txt also warns about deprecated secrets, pvcs and tolerations lists"
         - "Alpha 0.7.0-alpha.1: envs, volumes and args accept maps keyed by item name (preferred); lists still work but are deprecated"
         - "Layered envs, volumes and args: a later level overrides or deletes (null) a single item instead of replacing the whole list"
         - "Fixed schema keys frontend: typo for envs and volumes; added admin, orchestrator, router, commhub levels and args.all"

@@ -55,3 +55,29 @@ args:
   dashboard:
     - --otlp
     - "--key=value with spaces"
+# Deprecated list form of secrets, pvcs and tolerations.
+secrets:
+  - name: afs-secret
+    data:
+      - key: a
+        value: "x"
+      - key: b
+        value: "1000000"
+  - name: empty-secret
+    data: []
+pvcs:
+  - name: extra
+    spec:
+      accessModes: [ReadWriteOnce]
+      resources:
+        requests:
+          storage: 1Gi
+tolerations:
+  - key: dedicated
+    operator: Equal
+    value: soneta
+    effect: NoSchedule
+  - key: spot
+    operator: Exists
+    effect: NoSchedule
+    tolerationSeconds: 300

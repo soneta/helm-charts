@@ -1,6 +1,6 @@
 # Soneta Kubernetes Helm Chart
 
-> **Wersja 0.7.0-alpha.1 (alfa).** Zmienne środowiskowe (`envs`), wolumeny (`volumes`) i argumenty (`args`) można podawać jako mapy (zalecane); listy są nadal obsługiwane, ale są przestarzałe.
+> **Wersja 0.7.0-alpha.2 (alfa).** Zmienne środowiskowe (`envs`), wolumeny (`volumes`), argumenty (`args`), sekrety (`secrets`), dodatkowe PVC (`pvcs`) i tolerancje (`tolerations`) można podawać jako mapy (zalecane); listy są nadal obsługiwane, ale są przestarzałe.
 
 Funkcjonalność zawarta w tym repozytorium jest w fazie ***beta*** i może być przedmiotem zmian. Funkcjonalność ***beta*** nie podlega gwarancji.
 
@@ -122,12 +122,18 @@ Listy są nadal przyjmowane (**przestarzałe**) i renderują się identycznie ja
 | `volumes.all: [{name: a, mountPath: /a, spec: {...}}]` | `volumes.all: {a: {mountPath: /a, spec: {...}}}` |
 | `volumes.all: [{mountPath: /m}]` (bez nazwy) | `volumes.all: {m: {mountPath: /m}}` |
 | `args.web: ["--urls", "http://*:8080"]` | `args.web: {10-urls: ["--urls", "http://*:8080"]}` |
+| `secrets: [{name: afs, data: [{key: k, value: v}]}]` | `secrets: {afs: {data: {k: v}}}` |
+| `pvcs: [{name: extra, spec: {...}}]` | `pvcs: {extra: {spec: {...}}}` |
+| `tolerations: [{key: gpu, operator: Exists, effect: NoSchedule}]` | `tolerations: {gpu: {key: gpu, operator: Exists, effect: NoSchedule}}` (klucz to dowolny identyfikator) |
+| `nodeSelector: {disktype: ssd}` | bez zmian (mapa; domyślnie `{}`) |
 
 Uwagi:
 - Przy zamianie listy na mapę **kolejność zmiennych środowiskowych zmienia się** (klucze są sortowane). Pody zostaną więc zrestartowane jednorazowo przy aktualizacji.
 - Wartość `$(VAR)` rozwija się tylko do zmiennych zdefiniowanych **wcześniej** na liście env.
 - Lista na bazie i mapa w **tym samym** poziomie: mapa zastępuje listę w całości (zachowanie Helm). Mapa na **innym** poziomie upsertuje i usuwa elementy listy po nazwie.
-- Chart wypisuje w NOTES ostrzeżenie, gdy wykryje niepuste listy.
+- Chart wypisuje w NOTES ostrzeżenie, gdy wykryje niepuste listy (`envs`, `volumes`, `args`, `secrets`, `pvcs`, `tolerations`).
+- `secrets`, `pvcs` i `tolerations` nie mają warstw: mapa w pliku `-f` nadpisuje pojedynczy element, a `null` go usuwa. Elementy są renderowane w kolejności kluczy (dla `tolerations` identyfikator to dowolny klucz mapy).
+- `nodeSelector` jest mapą etykiet (`{klucz: wartość}`); pusta lista `[]` jest nadal akceptowana. Od 0.7.0-alpha.2 pody renderują tylko etykiety (wcześniej przez błąd renderowany był cały obiekt `values`).
 
 ### Przykłady `--set`
 
@@ -266,17 +272,35 @@ resources:
       storageClassName: azurefile
 ```
 
-- **Ustawienie wolumenów:**
+- **Ustawienie sekretów, tolerancji i dodatkowych PVC:**
 
 ```yaml
 # values.yaml
 secrets:
-- name: afs-secret
-  data:
-  - key: azurestorageaccountname
-    value: your_account_name
-  - key: azurestorageaccountkey
-    value: your_account_key
+  afs-secret:
+    data:
+      azurestorageaccountname: your_account_name
+      azurestorageaccountkey: your_account_key
+tolerations:
+  gpu:
+    key: gpu
+    operator: Exists
+    effect: NoSchedule
+nodeSelector:
+  disktype: ssd
+pvcs:
+  extra:
+    spec:
+      accessModes: [ReadWriteOnce]
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+- **Ustawienie wolumenów:**
+
+```yaml
+# values.yaml
 
 volumes:
   all:
