@@ -1,0 +1,7 @@
+# Deprecated list at 'all', map overlay at 'server': the overlay upserts into the list by name.
+envs:
+  all:
+    - name: TZ
+      value: Europe/Warsaw
+    - name: KEEP
+      value: "1"

@@ -5,15 +5,12 @@ metadata:
 spec:
   {{- toYaml .Values.resources.pvc.spec | nindent 2 }}
 
-{{- if .Values.pvcs }}
-  {{- $top := . -}}
-  {{- range $index, $pvc := .Values.pvcs }}
+{{- range $pvc := include "soneta.keyed" (list .Values.pvcs "pvcs") | fromYamlArray }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ $pvc.name }}
 spec:
-  {{- toYaml $pvc.spec | nindent 2 }}
-  {{- end }}
+  {{- toYaml $pvc.value.spec | nindent 2 }}
 {{- end }}

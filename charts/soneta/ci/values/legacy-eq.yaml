@@ -1,0 +1,55 @@
+# Same as legacy-full but without duplicates; names sorted, so the map form in map-eq.yaml must render identically.
+envs:
+  all:
+    - name: TZ
+      value: Europe/Warsaw
+  frontend:
+    - name: FRONT
+      value: "1"
+  backend:
+    - name: BACK
+      value: "2"
+  web:
+    - name: WEBSECRET
+      valueFrom:
+        secretKeyRef:
+          name: s
+          key: k
+  server:
+    - name: EMPTY
+      value: ""
+    - name: NUMLIKE
+      value: "1000000"
+  admin:
+    - name: ADM
+      value: x
+  scheduler:
+    - name: SCH
+      value: "y"
+volumes:
+  all:
+    - name: authentication
+      mountPath: /home/app/.config/Soneta/Authentication
+      subPath: tokenkey
+      spec:
+        csi:
+          driver: file.csi.azure.com
+          volumeAttributes:
+            shareName: share
+            secretName: afs-secret
+    - mountPath: /home/app/nameless
+  server:
+    - name: scratch
+      mountPath: /scratch
+      spec:
+        emptyDir: {}
+args:
+  all:
+    - --all-arg
+  server:
+    - --server-arg=1
+  web:
+    - --web
+  dashboard:
+    - --otlp
+    - "--key=value with spaces"

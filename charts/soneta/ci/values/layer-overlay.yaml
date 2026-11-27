@@ -1,0 +1,18 @@
+envs:
+  all:
+    GONE: null
+  server:
+    TZ: UTC
+    NEWSRV: "n"
+    SRVONLY: null
+    DELME: null
+    SAME: "3"
+volumes:
+  server:
+    authentication:
+      mountPath: /auth-server
+    logs: null
+args:
+  server:
+    10-a: null
+    30-c: --c

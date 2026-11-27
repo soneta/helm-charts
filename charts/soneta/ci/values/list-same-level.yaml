@@ -1,0 +1,4 @@
+# Map overlay at the SAME level as a list base: Helm replaces the list wholesale (documented behaviour).
+envs:
+  all:
+    X: "1"
